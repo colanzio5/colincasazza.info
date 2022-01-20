@@ -46,6 +46,8 @@ export default class ViewsStore extends VuexModule {
     // props.view.controls.minPolarAngle = 0;
     // props.view.controls.enableRotate = true;
     props.view.controls.enabled = props.view.controlsOptions.enabled;
+    props.view.controls.maxDistance = props.view.camera.far;
+    props.view.controls.minDistance = props.view.camera.near;
     if (props.view.controlsOptions.startDirection) {
       const { x, y, z } = props.view.controlsOptions.startDirection;
       props.view.controls.target = new Vector3(x, y, z);

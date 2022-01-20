@@ -5,12 +5,20 @@ import {
 import { Bird } from "./bird";
 
 export interface IFlockConfig {
-  birdRadius: number;
-  birdSize: number;
+  // flocking constants
+  separationMultiplier: number;
+  alignmentMultiplier: number;
+  cohesionMultiplier: number;
   maxSpeed: number;
   maxForce: number;
+  // rendering constants
   maxFlockSize: number;
-  birdColors: Color[];
+  birdRadius: number;
+  birdSize: number;
+  birdColors: { value: Color, probability: number }[];
+  // todo: this should actually be flockBoundary (trapezoid) 
+  // todo: unproject the camera onto the 2d plane the flock is on to generate flockBoundary
+  // todo: check if bird is outside of flockBoundary
   // this is the width and height of
   // the visible space in three.js space
   // NOT browser pixel space

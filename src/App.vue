@@ -1,6 +1,6 @@
 <template>
-  <div class="bg-blue-100 w-screen h-screen flex justify-center items-center">
-    <div class="w-5/6 h-5/6 relative">
+  <div class="bg-pink-100 w-screen h-screen flex justify-center items-center p-2">
+    <div class="w-full h-full relative">
       <RendererRootViewPortComponent class="z-10" />
       <div v-if="isAppReady" class="w-full h-full">
         <BackgroundView />
@@ -30,7 +30,5 @@ export default class App extends Vue {
   async mounted(): Promise<void> {
     await vxm.renderer.start();
   }
-
-  //  class="absolute inset-0 justify-center items-center"
 }
 </script>
