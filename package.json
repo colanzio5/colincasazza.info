@@ -1,0 +1,32 @@
+{
+  "name": "colincasazza.info",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dimforge/rapier2d-compat": "^0.8.0-alpha.0",
+    "@tailwindcss/postcss7-compat": "^2.2.17",
+    "register-service-worker": "^1.7.2",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.2",
+    "three": "^0.136.0",
+    "vite-tsconfig-paths": "^3.3.17",
+    "vue": "^3.2.25",
+    "vue-class-component": "^8.0.0-rc.1",
+    "vue-drag-resize": "^2.0.3",
+    "vue-property-decorator": "10.0.0-rc.3",
+    "vue-router": "^4.0.12",
+    "vuex": "^4.0.2",
+    "vuex-class-component": "^2.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.10",
+    "@types/three": "^0.136.1",
+    "@vitejs/plugin-vue": "^2.0.0",
+    "typescript": "^4.4.4",
+    "vite": "^2.7.2",
+    "vue-tsc": "^0.29.8"
+  }
+}
