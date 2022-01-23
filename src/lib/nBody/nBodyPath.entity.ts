@@ -5,11 +5,11 @@ import {
   Color,
   Points,
   PointsMaterial,
-  Vector2,
+  Vector3,
 } from "three";
-import { IEntity } from "./entity";
+import { IEntity } from "../renderer/entity";
 
-export class OrbitalPathEntity implements IEntity {
+export class NBodyPathEntity implements IEntity {
   geometry: BufferGeometry;
   material: PointsMaterial;
   line: Points;
@@ -17,7 +17,7 @@ export class OrbitalPathEntity implements IEntity {
   physicsEnabled = false;
   rigidBody?: RAPIER.RigidBody;
 
-  constructor(startingPosition: Vector2, color: Color) {
+  constructor(startingPosition: Vector3, color: Color) {
     const startingPoints = new Array(this.maxPoints)
       .fill(startingPosition.toArray().concat(0))
       .flat(2);
@@ -40,7 +40,7 @@ export class OrbitalPathEntity implements IEntity {
 
   // add point in the orbital path, rotate old items off the front
   //  and place on the back, add new point to the front
-  addPoint(point: Vector2): void {
+  addPoint(point: Vector3): void {
     const points = this.line.geometry.getAttribute("position").clone();
     const newPoints = Array.from(points.array);
     const rolloverItems = [

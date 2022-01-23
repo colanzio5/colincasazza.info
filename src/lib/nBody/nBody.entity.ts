@@ -1,25 +1,25 @@
-import RAPIER from "@dimforge/rapier2d-compat";
 import {
   BufferAttribute,
   BufferGeometry,
   Color,
   LineLoop,
   LineBasicMaterial,
-  Vector2,
+  Vector3,
 } from "three";
-import { simplex3 } from "../util/noise";
-import { IEntity } from "./entity";
-import { OrbitalPathEntity } from "./orbitalPath.entity";
+import { NBodyPathEntity } from "@/lib/nBody/nBodyPath.entity";
+import { simplex3 } from "@/lib/util/noise";
+import { IEntity } from "@/lib/renderer/entity";
+import {World, RigidBody, RigidBodyDesc, RigidBodyType } from "@dimforge/rapier2d-compat";
 
-export interface IPlanetOptions {
+export interface INBodyOptions {
   numberVertices: number;
   radius: number;
   mass: number;
   frequency: number;
   magnitude: number;
   seed: number;
-  origin: Vector2;
-  startingLinearVelocity: Vector2;
+  origin: Vector3;
+  startingLinearVelocity: Vector3;
 }
 
 const DEFAULT_TERRAIN_OPTIONS = {
@@ -29,11 +29,11 @@ const DEFAULT_TERRAIN_OPTIONS = {
   frequency: 3,
   magnitude: 0.05,
   seed: new Date().getMilliseconds(),
-  origin: new Vector2(0, 0),
-  startingLinearVelocity: new Vector2(0, 0),
+  origin: new Vector3(0, 0, 0),
+  startingLinearVelocity: new Vector3(0, 0, 0),
 };
 
-function generateTerrain(options: IPlanetOptions): Vector2[] {
+function generateTerrain(options: INBodyOptions): Vector3[] {
   return Array.from(Array(options.numberVertices).keys()).map((index) => {
     const angle = (2 * Math.PI * index) / options.numberVertices;
     // Figure out the x/y coordinates for the given angle
@@ -43,15 +43,16 @@ function generateTerrain(options: IPlanetOptions): Vector2[] {
     const deformation =
       simplex3(x * options.frequency, y * options.frequency, options.seed) + 1;
     const radius = options.radius * (1 + options.magnitude * deformation);
-    const vector = new Vector2(
+    const vector = new Vector3(
       options.origin.x + radius * x,
-      options.origin.y + radius * y
+      options.origin.y + radius * y,
+      0
     );
     return vector;
   });
 }
 
-export class PlanetEntity implements IEntity {
+export class NBodyEntity implements IEntity {
   // three.js entity variables
   geometry: BufferGeometry = new BufferGeometry();
   material: LineBasicMaterial = new LineBasicMaterial({
@@ -59,27 +60,27 @@ export class PlanetEntity implements IEntity {
     color: new Color("white"),
   });
   line: LineLoop = new LineLoop(this.geometry, this.material);
-  debugPath: OrbitalPathEntity;
+  debugPath: NBodyPathEntity;
   // physics variables
   physicsEnabled = true;
-  rigidBody: RAPIER.RigidBody;
+  rigidBody: RigidBody;
 
-  constructor(options: IPlanetOptions, physicsWorld: RAPIER.World) {
+  constructor(options: INBodyOptions, physicsWorld: World) {
     // overwrite defualt options with provided
     options = {
       ...DEFAULT_TERRAIN_OPTIONS,
       ...options,
-    } as IPlanetOptions;
+    } as INBodyOptions;
     const vertices = generateTerrain(options);
     // visual entity creation
     this.setVertices(vertices);
     this.geometry.center();
-    this.debugPath = new OrbitalPathEntity(
-      new Vector2(options.origin.x, options.origin.y),
+    this.debugPath = new NBodyPathEntity(
+      new Vector3(options.origin.x, options.origin.y, options.origin.z),
       new Color("white")
     );
     // rigid body description
-    const rigidBodyDesc = new RAPIER.RigidBodyDesc(RAPIER.RigidBodyType.Dynamic)
+    const rigidBodyDesc = new RigidBodyDesc(RigidBodyType.Dynamic)
       .setLinvel(
         options.startingLinearVelocity.x,
         options.startingLinearVelocity.y
@@ -97,7 +98,7 @@ export class PlanetEntity implements IEntity {
     this.geometry.dispose();
   }
 
-  setVertices(vertices: Vector2[]): void {
+  setVertices(vertices: Vector3[]): void {
     const positions = new Float32Array(
       vertices.map((e) => e.toArray().concat(0)).flat(1)
     );

@@ -21,7 +21,7 @@ const VuexModule = createModule({
 export default class RendererStore extends VuexModule {
   views = createSubModule(ViewsStore);
   stats: Stats = Stats();
-  renderer: WebGLRenderer = new WebGLRenderer({antialias:true});
+  renderer: WebGLRenderer = new WebGLRenderer({ antialias: true });
   renderLoop: RenderLoop = new RenderLoop();
   rendererRootViewPort: ViewPort = new ViewPort();
 
@@ -30,9 +30,7 @@ export default class RendererStore extends VuexModule {
     // setup stats
     this.rendererRootViewPort.container.appendChild(this.stats.dom);
     this.stats.domElement.style.cssText =
-      "position:absolute;bottom:5px;left:5px;cursor:pointer;z-index:999;";
-    this.renderer.domElement.style.zIndex = "999";
-    this.renderer.domElement.style.cursor = "crosshair";
+      "position:absolute;bottom:5px;right:5px;cursor:pointer;z-index:999;";
     props.container.appendChild(this.renderer.domElement);
     vxm.renderer.resize();
   }
@@ -41,7 +39,6 @@ export default class RendererStore extends VuexModule {
     // first resize the renderer root viewport
     const { left, bottom, width, height } = this.rendererRootViewPort;
     this.renderer.setSize(width, height, true);
-    this.renderer.setViewport(0, 0, width, height);
     // finally resize all the views
     this.rendererRootViewPort.resize();
     vxm.renderer.views.forEach((view) => view.viewPort.resize());
@@ -85,9 +82,11 @@ export default class RendererStore extends VuexModule {
 
   @mutation renderView(view: View): void {
     view.renderTickCallback();
-    const { width, height, left, bottom  } = view.viewPort;
-    this.renderer.setViewport(left,  bottom, width, height);
-    this.renderer.setScissor(left,  bottom, width, height);
+    const { width, height, left, bottom } = view.viewPort;
+    // console.log("rendering view : " + view.id);
+    // console.log(left, bottom, width, height);
+    this.renderer.setViewport(left, bottom, width, height);
+    this.renderer.setScissor(left, bottom, width, height);
     this.renderer.setScissorTest(true);
     this.renderer.setClearColor(new Color("red"), 1);
     this.renderer.render(toRaw(view.scene), view.camera);

@@ -1,5 +1,8 @@
 // by default three.js takes vertical FOV as camera param
 // I'd rather use horizontal FOV as the instantiation interface
+
+import { vxm } from "@/store";
+
 // so we have this helper function
 function getVerticalFOV(aspect: number, horizontalFov: number): number {
   return (
@@ -33,15 +36,27 @@ export class ViewPort {
     this.isMounted = true;
   }
 
+  getOffset(ele: HTMLElement | HTMLCanvasElement) {
+    // Get the top, left coordinates of two elements
+    const eleRect = ele.getBoundingClientRect();
+    const targetRect = vxm.renderer.renderer.domElement;
+    var bottom =  ( targetRect.offsetTop + targetRect.height ) - ( eleRect.y + eleRect.height );
+    // Calculate the top and left positions
+    const top = eleRect.top - targetRect.offsetTop;
+    const left = eleRect.left - targetRect.offsetLeft;
+    return {
+      left,
+      top,
+      bottom
+    };
+  }
+
   resize(): void {
-    const parentPos = (
-      this.container.parentElement as HTMLElement
-    ).getBoundingClientRect();
-    const childPos = this.container.getBoundingClientRect();
+    const { top, left, bottom} = this.getOffset(this.container);
     this.height = this.container.clientHeight;
     this.width = this.container.clientWidth;
-    this.left = parentPos.x - childPos.x;
-    this.bottom = parentPos.y - childPos.y;
+    this.left = left;
+    this.bottom = bottom;
   }
 
   destroy(): void {

@@ -1,9 +1,5 @@
 <template>
-  <div
-    :ref="_view.id"
-    :id="_view.id"
-    class="absolute w-full h-full z-20 opacity-50"
-  ></div>
+  <div :ref="_view.id" :id="_view.id">{{ _view.id }}</div>
 </template>
 
 <script lang="ts">
@@ -25,6 +21,9 @@ export default class ViewPort extends Vue {
       container: this.container as HTMLElement,
       makeActive: true,
     });
+    this._view.viewPort.resize()
+    const { left, bottom, width, height } = this._view.viewPort;
+    console.log(left, bottom, width, height, "offset", this._view.id);
   }
 }
 </script>

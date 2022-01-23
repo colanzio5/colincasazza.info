@@ -1,5 +1,5 @@
 <template>
-  <ViewPortComponent class="absolute" :view="view" />
+  <ViewPortComponent :view="view" />
 </template>
 
 <style lang="scss"></style>
@@ -32,11 +32,11 @@ export default class BackgroundView extends Vue {
       },
       controlsOptions: {
         startDirection: new Vector3(0, 0, 0),
-        enabled: true,
+        enabled: false,
       },
       renderTickCallback: this.renderTickCallback,
       id: "BACKGROUND_VIEW",
-      background: new Color("black"),
+      background: new Color("grey"),
     });
     this.flock = new Flock({
       separationMultiplier: 0.9,
@@ -46,10 +46,10 @@ export default class BackgroundView extends Vue {
       maxForce: 0.1,
       birdSize: 5,
       birdRadius: 2,
-      maxFlockSize: 500,
+      maxFlockSize: 50,
       birdColors: [
-        { value: new Color("rgb(0,255,255)"), probability: -1 },
-        { value: new Color("rgb(255,0,255)"), probability: (1/150) },
+        { value: new Color("#60a5fa"), probability: -1 },
+        { value: new Color("#fa60a5"), probability: (1/150) },
       ],
       width: 0,
       height: 0,
