@@ -40,21 +40,22 @@ export class ViewPort {
     // Get the top, left coordinates of two elements
     const eleRect = ele.getBoundingClientRect();
     const targetRect = vxm.renderer.renderer.domElement;
-    var bottom =  ( targetRect.offsetTop + targetRect.height ) - ( eleRect.y + eleRect.height );
-    // Calculate the top and left positions
-    const top = eleRect.top - targetRect.offsetTop;
+    var bottom =
+      targetRect.offsetTop + targetRect.height - (eleRect.y + eleRect.height);
     const left = eleRect.left - targetRect.offsetLeft;
     return {
       left,
-      top,
-      bottom
+      bottom,
     };
   }
 
   resize(): void {
-    const { top, left, bottom} = this.getOffset(this.container);
-    this.height = this.container.clientHeight;
-    this.width = this.container.clientWidth;
+    const { left, bottom } = this.getOffset(this.container);
+    const { width, height } = this.container.getBoundingClientRect();
+    // this.height = this.container.clientHeight;
+    this.height = height;
+    // this.width = this.container.clientWidth;
+    this.width = width;
     this.left = left;
     this.bottom = bottom;
   }

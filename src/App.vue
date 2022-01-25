@@ -5,7 +5,7 @@
       <div v-if="isAppReady">
         <BackgroundView class="absolute w-full h-full" />
         <div class="absolute w-full h-full flex flex-col z-30 p-4 pb-24">
-          <NavBar />
+          <NavBar/>
           <router-view class="flex-grow" />
         </div>
       </div>
@@ -15,7 +15,7 @@
 
 <style lang="postcss">
 .app-wrapper {
-  @apply bg-blue-300 w-screen h-screen overflow-hidden;
+  @apply bg-black w-screen h-screen overflow-hidden;
 }
 </style>
 

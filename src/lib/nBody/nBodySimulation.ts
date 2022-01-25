@@ -1,5 +1,5 @@
 import { World } from "@dimforge/rapier2d-compat";
-import { Vector2 } from "three";
+import { Vector2, Vector3 } from "three";
 import { randomFromRange } from "@/lib/util/random";
 import { INBodyOptions, NBodyEntity } from "@/lib/nBody/nBody.entity";
 
@@ -62,7 +62,7 @@ export class NBodySimulation {
       line.position.setY(y);
       line.rotation.set(0, 0, rigidBody.rotation());
       line.geometry.computeBoundingSphere();
-      debugPath.addPoint(new Vector2(x, y));
+      debugPath.addPoint(new Vector3(x, y));
     });
   }
 }

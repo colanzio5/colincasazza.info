@@ -6,6 +6,8 @@ import { Bird } from "./bird";
 
 export interface IFlockConfig {
   // flocking constants
+  neighborDistance: number;
+  desiredSeparation: number;
   separationMultiplier: number;
   alignmentMultiplier: number;
   cohesionMultiplier: number;
@@ -34,14 +36,14 @@ export class Flock {
     this.flockConfig = flockParams;
   }
 
-  addBird(position: Vector2): [birdAdded: Bird, birdRemoved: Bird | undefined] {
+  addBird(position: Vector2): {birdAdded: Bird, birdRemoved: Bird | undefined } {
     const birdAdded = new Bird(position, this.flockConfig);
-    if (this.birds.length > this.flockConfig.maxFlockSize) {
+    if (this.birds.length >= this.flockConfig.maxFlockSize) {
       const birdRemoved = this.birds.shift();
-      return [birdAdded, birdRemoved];
+      return { birdAdded, birdRemoved }
     }
     this.birds.push(birdAdded);
-    return [birdAdded, undefined];
+    return { birdAdded, birdRemoved: undefined };
   }
   run(): void {
     for(const bird of this.birds) {
@@ -56,5 +58,9 @@ export class Flock {
       bird.birdConfig.width = width;
       bird.birdConfig.height = height;
     }
+  }
+
+  disposeAll() {
+    this.birds.forEach(bird => bird.dispose());
   }
 }

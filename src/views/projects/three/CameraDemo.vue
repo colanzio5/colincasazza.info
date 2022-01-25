@@ -185,7 +185,6 @@ export default class CameraDemo extends Vue {
     this.cameraOrtho.updateProjectionMatrix();
   }
   animate(): void {
-    console.debug("[debug] camera-demo-render-loop-active");
     this.animationFrameId = requestAnimationFrame(this.animate);
     const r = Date.now() * 0.0005;
     this.mesh.position.x = 700 * Math.cos(r);

@@ -29,6 +29,8 @@ export interface IViewOptions {
   id?: string;
   scene?: Scene;
   physicsWorld?: RAPIER.World;
+  // view specific metadata
+  meta?: Object;
   // required variables
   renderTickCallback?: () => void;
   // setup after view creation by viewStore
@@ -63,6 +65,8 @@ export class View {
     startDirection: new Vector3(0, 0, 100),
   };
   controls!: OrbitControls;
+  // store view specific stuff here
+  meta: Object = {}
 
   constructor(props: IViewOptions) {
     // some options will be used to create inner
@@ -77,6 +81,7 @@ export class View {
     if (props.scene) this.scene = props.scene;
     if (props.id) this.id = props.id;
     if (props.background) this.background = props.background;
+    if (props.meta) this.meta = props.meta
   }
 
   get isMounted() {
@@ -90,12 +95,14 @@ export class View {
   }
 
   addEntities(entities: Object3D[]): void {
-    this.entities.push(...entities);
-    this.scene.add(...entities);
+    for(const entity of entities) {
+      this.scene.add(entity);
+      this.entities.push(entity);
+    }
   }
 
   removeEntities(entities: Object3D[]): void {
-    this.entities = this.entities.filter((e) => entities.includes(e));
+    this.entities = this.entities.filter((e: Object3D) => entities.includes(e));
     this.scene.remove(...entities);
   }
 

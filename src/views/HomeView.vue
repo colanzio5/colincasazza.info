@@ -1,64 +1,65 @@
 <template>
   <div class="home-wrapper">
-    <div class="text-4xl">Colin Casazza</div>
-    <br />
-    <div class="text-lx">
-      <div>colanzio5@gmail.com</div>
-      <div>San Diego, CA</div>
-      <div>(603)714-2047</div>
-      <a class="link" href="https://github.com/colanzio5">
-        <div>github.com/colanzio5</div>
-      </a>
-      <a class="link" href="https://www.linkedin.com/in/ccasazza/">
-        <div>linkedin.com/in/ccasazza</div>
-      </a>
-    </div>
-    <br />
+    <div class="text-4xl text-secondary-200">colin casazza</div>
 
-    <div class="text-4xl">About Me</div>
-    <div>
-      Software developer with an interest in creating tools for robotics,
-      aerospace, and other STEM industries. Demonstrated history with data
+    <div class="text-lx mb-4 select-text">
+      <div>colanzio5@gmail.com</div>
+      <div>san diego, ca</div>
+      <div>(603)714-2047</div>
+      <div class="link w-min" href="https://github.com/colanzio5">
+        github.com/colanzio5
+      </div>
+      <div class="link w-min" href="https://www.linkedin.com/in/ccasazza/">
+        linkedin.com/in/ccasazza
+      </div>
+    </div>
+
+    <div class="text-4xl text-secondary-200">about me</div>
+    <div class="mb-4">
+      software developer with an interest in creating tools for robotics,
+      aerospace, and other stem industries. demonstrated history with data
       science, programming for systems engineering, and full stack web
       development including design and implementation of stable, scalable
       infrastructure.
     </div>
-    <br />
 
-    <div class="text-4xl">Experience</div>
-    <div class="text-xl">
-      <h3>Qualcomm/IT Engineer - Search, Big Data, and Analytics</h3>
+    <div class="text-4xl text-secondary-200">experience</div>
+    <div class="text-xl mb-4">
+      <h3>qualcomm/it engineer - search, big data, and analytics</h3>
       <div class="text-sm pb-1">
-        October 2021 - current - Cloud Tools Software Engineer
+        october 2021 - current - cloud tools software engineer
       </div>
       <div class="text-sm pb-1">
-        March 2020 - October 2021 - IT Engineer, Programmer Analyst, Site
-        Reliability Engineer
+        march 2020 - october 2021 - it engineer, programmer analyst, site
+        reliability engineer
       </div>
-      <div>May 2018 - Sep 2018 - IT Engineering Intern</div>
-      <h3>Voyager Space Technologies</h3>
+      <div>may 2018 - sep 2018 - it engineering intern</div>
+      <h3>voyager space technologies</h3>
       <div class="text-sm pb-1">
-        Jul 2018 - Aug 2019 - Full Stack Software Engineer
+        jul 2018 - aug 2019 - full stack software engineer
       </div>
-      <h3>SDSU Rocket Project</h3>
+      <h3>sdsu rocket project</h3>
       <div class="text-sm pb-1">
-        Sep 2015 - Jan 2018 - Avionics Systems Engineer
+        sep 2015 - jan 2018 - avionics systems engineer
       </div>
-      <h3>Freelance Developer</h3>
+      <h3>freelance developer</h3>
       <div class="text-sm pb-1">
-        Jun 2017 - Jan 2018 - Full Stack Web Developer
+        jun 2017 - jan 2018 - full stack web developer
       </div>
-      <h3>San Diego State University</h3>
+      <h3>san diego state university</h3>
       <div class="text-sm pb-1">
-        Sep 2015 - Dec 2019 - Bachelor’s Degree in Computer Science
+        sep 2015 - dec 2019 - bachelor’s degree in computer science
       </div>
     </div>
+    <router-link class="select-text cursor-pointer" to="/debug/background">
+      <div class="link text-sm">like the background? click here</div>
+    </router-link>
   </div>
 </template>
 
-<style lang="postcss" scoped>
+<style lang="postcss">
 .home-wrapper {
-  @apply w-full h-full text-white overflow-y-scroll text-center p-4 sm:text-left sm:p-0;
+  @apply h-full select-none text-white overflow-y-scroll text-center p-4 mt-4 sm:min-w-[500px] sm:text-left sm:p-0 sm:w-1/3;
 }
 </style>
 

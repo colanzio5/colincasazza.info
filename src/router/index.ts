@@ -3,6 +3,8 @@ import HomeView from "@/views/HomeView.vue";
 import NbodyDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
 import PlanetDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
 import MultiViewPortDebug from "@/views/debug/MultiViewPortDebug.vue";
+import BackgroundDebug from "@/views/debug/BackgroundDebug.vue";
+
 // import JupyterNotebook from "../components/JupyterNotebook.vue";
 import Projects from "@/views/projects/Projects.vue";
 import CameraDemo from "@/views/projects/three/CameraDemo.vue";
@@ -37,6 +39,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/debug/multi-viewport",
     component: MultiViewPortDebug,
+  },  
+  {
+    path: "/debug/background",
+    component: BackgroundDebug,
   },
 ];
 

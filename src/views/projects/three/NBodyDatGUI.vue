@@ -5,13 +5,11 @@
 <script lang="ts">
 import { Vue } from "vue-class-component";
 import Dat, { GUI } from "dat.gui";
-import init from "three-dat.gui";
 import { Vector2 } from "three";
 import NBody from "@/views/projects/three/NBody.vue";
 import { ISimConfig } from "@/lib/nBody/nBodySimulation";
 import { Model } from "vue-property-decorator";
 
-init(Dat);
 
 export default class Controls extends Vue {
   @Model("simConfig", { required: true, type: Object }) _simConfig!: ISimConfig;

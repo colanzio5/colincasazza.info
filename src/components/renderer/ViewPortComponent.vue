@@ -21,9 +21,11 @@ export default class ViewPort extends Vue {
       container: this.container as HTMLElement,
       makeActive: true,
     });
-    this._view.viewPort.resize()
-    const { left, bottom, width, height } = this._view.viewPort;
-    console.log(left, bottom, width, height, "offset", this._view.id);
+    this._view.viewPort.resize();
+  }
+
+  unmounted(): void {
+    vxm.renderer.views.deleteViewById({ id: this._view.id });
   }
 }
 </script>

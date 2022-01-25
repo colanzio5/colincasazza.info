@@ -39,9 +39,13 @@ export default class RendererStore extends VuexModule {
     // first resize the renderer root viewport
     const { left, bottom, width, height } = this.rendererRootViewPort;
     this.renderer.setSize(width, height, true);
+
     // finally resize all the views
     this.rendererRootViewPort.resize();
-    vxm.renderer.views.forEach((view) => view.viewPort.resize());
+    vxm.renderer.views.forEach((view) => {
+      view.camera.aspect = this.rendererRootViewPort.aspect
+      view.viewPort.resize();
+    });
   }
 
   @action async start(): Promise<void> {
@@ -83,12 +87,10 @@ export default class RendererStore extends VuexModule {
   @mutation renderView(view: View): void {
     view.renderTickCallback();
     const { width, height, left, bottom } = view.viewPort;
-    // console.log("rendering view : " + view.id);
-    // console.log(left, bottom, width, height);
     this.renderer.setViewport(left, bottom, width, height);
     this.renderer.setScissor(left, bottom, width, height);
     this.renderer.setScissorTest(true);
-    this.renderer.setClearColor(new Color("red"), 1);
+    this.renderer.setClearColor(new Color("black"), 1);
     this.renderer.render(toRaw(view.scene), view.camera);
     view.camera.updateProjectionMatrix();
     view.controls.update();

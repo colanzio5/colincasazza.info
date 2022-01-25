@@ -2,10 +2,12 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
+  Euler,
   Line,
   LineBasicMaterial,
   Material,
   Vector2,
+  Vector3,
 } from "three";
 import { randomFromRange, randomSelectFromWeightedArray } from "../util/random";
 import { IFlockConfig } from "./flock";
@@ -23,9 +25,12 @@ export class Bird {
   line: Line;
 
   constructor(position: Vector2, flockConfig: IFlockConfig) {
-    this.acceleration = new Vector2(0, 0);
+    this.acceleration = new Vector2();
 
-    this.velocity = new Vector2(randomFromRange(-1, 1), randomFromRange(-1, 1));
+    this.velocity = new Vector2(
+      randomFromRange(-flockConfig.maxSpeed, flockConfig.maxSpeed),
+      randomFromRange(-flockConfig.maxSpeed, flockConfig.maxSpeed)
+    );
     this.position = position;
     this.birdConfig = flockConfig;
     // create the three stuff needed to render
@@ -49,6 +54,11 @@ export class Bird {
     this.geometry.center();
   }
 
+  dispose() {
+    this.geometry.dispose();
+    this.material.dispose();
+  }
+
   getVertices(): Vector2[] {
     // equaliteral trongle math <:)
     const { x, y } = this.position;
@@ -66,9 +76,7 @@ export class Bird {
   }
 
   run(birds: Bird[]) {
-    const separation = this.separate(birds); // Separation
-    const alignment = this.align(birds); // Alignment
-    const cohesion = this.cohesion(birds); // Cohesion
+    const { separation, alignment, cohesion } = this.fastPhysics(birds);
     // Arbitrarily weight these forces
     separation.multiplyScalar(this.birdConfig.separationMultiplier);
     alignment.multiplyScalar(this.birdConfig.alignmentMultiplier);
@@ -79,7 +87,7 @@ export class Bird {
     // Update velocity
     this.velocity.add(this.acceleration);
     // Limit speed
-    this.velocity.clampScalar(
+    this.velocity.clampLength(
       -this.birdConfig.maxSpeed,
       this.birdConfig.maxSpeed
     );
@@ -104,7 +112,9 @@ export class Bird {
     // update three entity
     this.line.position.setX(this.position.x);
     this.line.position.setY(this.position.y);
+    // this.line.setRotationFromEuler(new Euler(0,0,this.velocity.angle(),"XYZ"))
     this.line.rotation.set(0, 0, this.velocity.angle() - Math.PI / 2);
+    this.line.geometry.center();
   }
 
   seek(target: Vector2) {
@@ -114,19 +124,86 @@ export class Bird {
     desired.multiplyScalar(this.birdConfig.maxSpeed);
     // Steering = Desired minus Velocity
     const steer = new Vector2().subVectors(desired, this.velocity);
-    steer.clampScalar(-this.birdConfig.maxForce, this.birdConfig.maxForce); // Limit to maximum steering force
+    steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
+    // steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce); // Limit to maximum steering force
     return steer;
   }
 
+  fastPhysics(birds: Bird[]) {
+    // separation vars
+    const separation = new Vector2(0, 0);
+    let count = 0;
+    // alignment+cohesion vars
+    const sum = new Vector2(0, 0);
+    let count2 = 0;
+
+    for (const bird of birds) {
+      // separation
+      const d = this.position.distanceTo(bird.position);
+
+      if (d > 0) {
+        // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+        if (d < this.birdConfig.desiredSeparation) {
+          // Calculate vector pointing away from neighbor
+          const diff = new Vector2().subVectors(this.position, bird.position);
+          diff.normalize();
+          diff.divideScalar(d); // Weight by distance
+          separation.add(diff);
+          count++; // Keep track of how many
+        }
+        // alignment+cohesion
+        if (d < this.birdConfig.neighborDistance) {
+          sum.add(bird.velocity);
+          count2++;
+        }
+      }
+    }
+
+    // separation calculations
+    // Average -- divide by how many
+    if (count > 0) {
+      separation.divideScalar(count);
+    }
+
+    // As long as the vector is greater than 0
+    if (separation.length() > 0) {
+      // Implement Reynolds: Steering = Desired - Velocity
+      separation
+        .normalize()
+        .multiplyScalar(this.birdConfig.maxSpeed)
+        .sub(this.velocity)
+        .clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
+    }
+
+    // alignment calculations
+    let alignment: Vector2 = new Vector2(0, 0);
+    if (count2 > 0) {
+      sum
+        .divideScalar(count)
+        .normalize()
+        .multiplyScalar(this.birdConfig.maxSpeed);
+      alignment = new Vector2()
+        .subVectors(sum, this.velocity)
+        .clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
+    }
+    let cohesion: Vector2 = new Vector2(0, 0);
+    // cohesion calculations
+    if (count2 > 0) {
+      sum.divideScalar(count);
+      cohesion = this.seek(sum); // Steer towards the location
+    }
+
+    return { separation, alignment, cohesion };
+  }
+
   separate(birds: Bird[]) {
-    const desiredseparation = 25.0;
     const steer = new Vector2(0, 0);
     let count = 0;
 
     for (const bird of birds) {
       const d = this.position.distanceTo(bird.position);
       // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
-      if (d > 0 && d < desiredseparation) {
+      if (d > 0 && d < this.birdConfig.desiredSeparation) {
         // Calculate vector pointing away from neighbor
         const diff = new Vector2().subVectors(this.position, bird.position);
         diff.normalize();
@@ -146,18 +223,17 @@ export class Bird {
       steer.normalize();
       steer.multiplyScalar(this.birdConfig.maxSpeed);
       steer.sub(this.velocity);
-      steer.clampScalar(-this.birdConfig.maxForce, this.birdConfig.maxForce);
+      steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
     }
     return steer;
   }
 
   align(birds: Bird[]) {
-    const neighbordist = 50;
     const sum = new Vector2(0, 0);
     let count = 0;
     for (const bird of birds) {
       const d = this.position.distanceTo(bird.position);
-      if (d > 0 && d < neighbordist) {
+      if (d > 0 && d < this.birdConfig.neighborDistance) {
         sum.add(bird.velocity);
         count++;
       }
@@ -167,7 +243,7 @@ export class Bird {
       sum.normalize();
       sum.multiplyScalar(this.birdConfig.maxSpeed);
       const steer = new Vector2().subVectors(sum, this.velocity);
-      steer.clampScalar(-this.birdConfig.maxForce, this.birdConfig.maxForce);
+      steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
       return steer;
     } else {
       return new Vector2(0, 0);
@@ -175,12 +251,11 @@ export class Bird {
   }
 
   cohesion(birds: Bird[]) {
-    const neighbordist = 50;
     const sum = new Vector2(0, 0); // Start with empty vector to accumulate all locations
     let count = 0;
     for (const bird of birds) {
       const d = this.position.distanceTo(bird.position);
-      if (d > 0 && d < neighbordist) {
+      if (d > 0 && d < this.birdConfig.neighborDistance) {
         sum.add(bird.position); // Add location
         count++;
       }
