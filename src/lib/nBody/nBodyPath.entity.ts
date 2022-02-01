@@ -19,7 +19,7 @@ export class NBodyPathEntity implements IEntity {
 
   constructor(startingPosition: Vector3, color: Color) {
     const startingPoints = new Array(this.maxPoints)
-      .fill(startingPosition.toArray().concat(0))
+      .fill(startingPosition.toArray())
       .flat(2);
     const startingPointsFloat32Array = new Float32Array(this.maxPoints * 3);
     startingPointsFloat32Array.set(startingPoints);

@@ -14,30 +14,28 @@ export function randomColor() {
   const b = randomIntFromRange(0, 255);
   return new Color(`rgb(${r},${g},${b})`);
 }
-export function randomSelectFromWeightedArray<T>(
-  values: { value: T; probability: number }[]
-): T {
-  let i,
-    pickedValue,
-    randomNr = Math.random(),
-    threshold = 0;
 
-  for (i = 0; i < values.length; i++) {
-    if (values[i].probability === -1) {
-      continue;
+export class WeightedArray<T extends { probability: number }> extends Array<T> {
+  selectRandom(): T {
+    let i;
+    let pickedValue;
+    let randomNr = Math.random();
+    let threshold = 0;
+    for (i = 0; i < this.length; i++) {
+      if (this[i].probability === -1) {
+        continue;
+      }
+      threshold += this[i].probability;
+      if (threshold > randomNr) {
+        pickedValue = this[i];
+        break;
+      }
     }
-
-    threshold += values[i].probability;
-    if (threshold > randomNr) {
-      pickedValue = values[i].value;
-      break;
+    if (!pickedValue) {
+      //nothing found based on probability value, so pick element marked with wildcard
+      pickedValue = this.find((value) => value.probability === -1);
+      if(!pickedValue) throw new Error("weighted array has no default value.")
     }
+    return pickedValue;
   }
-
-  if (!pickedValue) {
-    //nothing found based on probability value, so pick element marked with wildcard
-    pickedValue = values.find((value) => value.probability === -1)?.value;
-  }
-
-  return pickedValue as T;
 }

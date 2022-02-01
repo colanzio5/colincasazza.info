@@ -20,6 +20,7 @@ export interface INBodyOptions {
   seed: number;
   origin: Vector3;
   startingLinearVelocity: Vector3;
+  color: Color;
 }
 
 const DEFAULT_TERRAIN_OPTIONS = {
@@ -77,7 +78,7 @@ export class NBodyEntity implements IEntity {
     this.geometry.center();
     this.debugPath = new NBodyPathEntity(
       new Vector3(options.origin.x, options.origin.y, options.origin.z),
-      new Color("white")
+      options.color
     );
     // rigid body description
     const rigidBodyDesc = new RigidBodyDesc(RigidBodyType.Dynamic)

@@ -3,7 +3,7 @@
     <div class="w-full h-full relative">
       <RendererRootViewPortComponent class="z-10" />
       <div v-if="isAppReady">
-        <BackgroundView class="absolute w-full h-full" />
+        <Background class="absolute w-full h-full" />
         <div class="absolute w-full h-full flex flex-col z-30 p-4 pb-24">
           <NavBar/>
           <router-view class="flex-grow" />
@@ -21,14 +21,14 @@
 
 <script lang="ts">
 import RendererRootViewPortComponent from "@/components/renderer/RendererRootViewPortComponent.vue";
-import BackgroundView from "@/views/BackgroundView.vue";
+import Background from "@/views/background/Background.vue";
 import NavBar from "@/views/NavBar.vue";
 import { Options, Vue } from "vue-class-component";
 import { vxm } from "./store";
 
 @Options({
   components: {
-    BackgroundView,
+    Background,
     RendererRootViewPortComponent,
     NavBar,
   },

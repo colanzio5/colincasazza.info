@@ -2,59 +2,120 @@ import {
   BufferAttribute,
   BufferGeometry,
   Color,
-  Euler,
   Line,
   LineBasicMaterial,
   Material,
+  Triangle,
   Vector2,
   Vector3,
 } from "three";
-import { randomFromRange, randomSelectFromWeightedArray } from "../util/random";
-import { IFlockConfig } from "./flock";
+import { randomFromRange } from "../util/random";
+import { Flock, IFlockConfig } from "./flock";
+import { generateUUID } from "three/src/math/MathUtils";
+
+export class BirdConfig {
+  id: string = generateUUID();
+  // bird constants
+  probability: number;
+  neighborDistance: number;
+  desiredSeparation: number;
+  separationMultiplier: number;
+  alignmentMultiplier: number;
+  cohesionMultiplier: number;
+  maxSpeed: number;
+  maxForce: number;
+  birdSize: number;
+  color: Color;
+
+  constructor(props: {
+    probability: number;
+    neighborDistance: number;
+    desiredSeparation: number;
+    separationMultiplier: number;
+    alignmentMultiplier: number;
+    cohesionMultiplier: number;
+    maxSpeed: number;
+    maxForce: number;
+    birdSize: number;
+    color: Color;
+  }) {
+    this.probability = props.probability;
+    this.neighborDistance = props.neighborDistance;
+    this.desiredSeparation = props.desiredSeparation;
+    this.separationMultiplier = props.separationMultiplier;
+    this.alignmentMultiplier = props.alignmentMultiplier;
+    this.cohesionMultiplier = props.cohesionMultiplier;
+    this.maxSpeed = props.maxSpeed;
+    this.maxForce = props.maxForce;
+    this.birdSize = props.birdSize;
+    this.color = props.color;
+  }
+}
 
 export class Bird {
   // static state
-  birdConfig: IFlockConfig;
+  birdConfig: BirdConfig;
   // dynamic state
+  height: number;
+  width: number;
   acceleration: Vector2;
   velocity: Vector2;
   position: Vector2;
   // rendering state
-  geometry: BufferGeometry;
-  material: Material;
-  line: Line;
+  geometry!: BufferGeometry;
+  material!: LineBasicMaterial;
+  line!: Line;
 
-  constructor(position: Vector2, flockConfig: IFlockConfig) {
-    this.acceleration = new Vector2();
+  get maxSpeed(): number {
+    return this.birdConfig.maxSpeed;
+  }
 
-    this.velocity = new Vector2(
-      randomFromRange(-flockConfig.maxSpeed, flockConfig.maxSpeed),
-      randomFromRange(-flockConfig.maxSpeed, flockConfig.maxSpeed)
-    );
-    this.position = position;
-    this.birdConfig = flockConfig;
+  get maxVelocity(): number {
+    return this.birdConfig.maxSpeed;
+  }
+
+  constructor(
+    flock: Flock,
+    birdConfig?: BirdConfig,
+    options?: { position?: Vector2; acceleration?: Vector2; velocity?: Vector2 }
+  ) {
+    this.height = flock.height;
+    this.width = flock.width;
+    this.birdConfig = birdConfig
+      ? birdConfig
+      : flock.flockConfig.birdConfigs.selectRandom();
+    this.position = options?.position
+      ? options.position
+      : new Vector2(
+          randomFromRange(-flock.width, flock.width),
+          randomFromRange(-flock.height, flock.height)
+        );
+    this.velocity = options?.velocity
+      ? options.velocity
+      : new Vector2(
+          randomFromRange(-this.birdConfig.maxSpeed, this.birdConfig.maxSpeed),
+          randomFromRange(-this.birdConfig.maxSpeed, this.birdConfig.maxSpeed)
+        );
+    this.acceleration = options?.acceleration
+      ? options.acceleration
+      : new Vector2();
+    this.applyConfig();
+  }
+
+  applyConfig() {
     // create the three stuff needed to render
     this.geometry = new BufferGeometry();
     const vertices = new Float32Array(
       this.getVertices().flatMap((e) => e.toArray().concat(0))
     );
     this.geometry.setAttribute("position", new BufferAttribute(vertices, 3));
-    this.material = new LineBasicMaterial({
-      color: randomSelectFromWeightedArray(this.birdConfig.birdColors),
-    });
-    // ! random colors
-    // const r = Math.round(randomFromRange(0, 255)),
-    //   g = Math.round(randomFromRange(0, 255)),
-    //   b = Math.round(randomFromRange(0, 255));
-    // this.material = new LineBasicMaterial({
-    //   color: new Color(`rgb(${r},${g},${b})`),
-    // });
+    this.material = new LineBasicMaterial({ color: this.birdConfig.color });
     this.line = new Line(this.geometry, this.material);
-    this.line.position.set(position.x, position.y, 0);
     this.geometry.center();
   }
 
   dispose() {
+    this.geometry.dispose();
     this.geometry.dispose();
     this.material.dispose();
   }
@@ -63,7 +124,7 @@ export class Bird {
     // equaliteral trongle math <:)
     const { x, y } = this.position;
     const position = new Vector2(x, y);
-    const angle = this.position.angle();
+    const angle = this.velocity.angle();
     const sideLength = this.birdConfig.birdSize;
     const R = sideLength / (2 * Math.cos(Math.PI / 6));
     const r = Math.tan(Math.PI / 6) * (sideLength / 2);
@@ -76,7 +137,7 @@ export class Bird {
   }
 
   run(birds: Bird[]) {
-    const { separation, alignment, cohesion } = this.fastPhysics(birds);
+    const { separation, alignment, cohesion } = this.physics(birds);
     // Arbitrarily weight these forces
     separation.multiplyScalar(this.birdConfig.separationMultiplier);
     alignment.multiplyScalar(this.birdConfig.alignmentMultiplier);
@@ -95,26 +156,24 @@ export class Bird {
     // Reset accelertion to 0 each cycle
     this.acceleration.multiplyScalar(0);
     // wrap birds around borders
-    const halfWidth = this.birdConfig.width / 2,
-      halfHeight = this.birdConfig.height / 2;
+    const halfWidth = this.width / 2,
+      halfHeight = this.height / 2;
     if (this.position.x < -halfWidth) {
-      this.position.x = halfWidth + this.birdConfig.birdRadius;
+      this.position.x = halfWidth + this.birdConfig.birdSize;
     }
     if (this.position.y < -halfHeight) {
-      this.position.y = halfHeight + this.birdConfig.birdRadius;
+      this.position.y = halfHeight + this.birdConfig.birdSize;
     }
-    if (this.position.x > halfWidth + this.birdConfig.birdRadius) {
+    if (this.position.x > halfWidth + this.birdConfig.birdSize) {
       this.position.x = -halfWidth;
     }
-    if (this.position.y > halfHeight + this.birdConfig.birdRadius) {
+    if (this.position.y > halfHeight + this.birdConfig.birdSize) {
       this.position.y = -halfHeight;
     }
     // update three entity
     this.line.position.setX(this.position.x);
     this.line.position.setY(this.position.y);
-    // this.line.setRotationFromEuler(new Euler(0,0,this.velocity.angle(),"XYZ"))
-    this.line.rotation.set(0, 0, this.velocity.angle() - Math.PI / 2);
-    this.line.geometry.center();
+    this.line.rotation.set(0, 0, this.velocity.angle());
   }
 
   seek(target: Vector2) {
@@ -125,11 +184,10 @@ export class Bird {
     // Steering = Desired minus Velocity
     const steer = new Vector2().subVectors(desired, this.velocity);
     steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
-    // steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce); // Limit to maximum steering force
     return steer;
   }
 
-  fastPhysics(birds: Bird[]) {
+  physics(birds: Bird[]) {
     // separation vars
     const separation = new Vector2(0, 0);
     let count = 0;
@@ -194,77 +252,5 @@ export class Bird {
     }
 
     return { separation, alignment, cohesion };
-  }
-
-  separate(birds: Bird[]) {
-    const steer = new Vector2(0, 0);
-    let count = 0;
-
-    for (const bird of birds) {
-      const d = this.position.distanceTo(bird.position);
-      // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
-      if (d > 0 && d < this.birdConfig.desiredSeparation) {
-        // Calculate vector pointing away from neighbor
-        const diff = new Vector2().subVectors(this.position, bird.position);
-        diff.normalize();
-        diff.divideScalar(d); // Weight by distance
-        steer.add(diff);
-        count++; // Keep track of how many
-      }
-    }
-    // Average -- divide by how many
-    if (count > 0) {
-      steer.divideScalar(count);
-    }
-
-    // As long as the vector is greater than 0
-    if (steer.length() > 0) {
-      // Implement Reynolds: Steering = Desired - Velocity
-      steer.normalize();
-      steer.multiplyScalar(this.birdConfig.maxSpeed);
-      steer.sub(this.velocity);
-      steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
-    }
-    return steer;
-  }
-
-  align(birds: Bird[]) {
-    const sum = new Vector2(0, 0);
-    let count = 0;
-    for (const bird of birds) {
-      const d = this.position.distanceTo(bird.position);
-      if (d > 0 && d < this.birdConfig.neighborDistance) {
-        sum.add(bird.velocity);
-        count++;
-      }
-    }
-    if (count > 0) {
-      sum.divideScalar(count);
-      sum.normalize();
-      sum.multiplyScalar(this.birdConfig.maxSpeed);
-      const steer = new Vector2().subVectors(sum, this.velocity);
-      steer.clampLength(-this.birdConfig.maxForce, this.birdConfig.maxForce);
-      return steer;
-    } else {
-      return new Vector2(0, 0);
-    }
-  }
-
-  cohesion(birds: Bird[]) {
-    const sum = new Vector2(0, 0); // Start with empty vector to accumulate all locations
-    let count = 0;
-    for (const bird of birds) {
-      const d = this.position.distanceTo(bird.position);
-      if (d > 0 && d < this.birdConfig.neighborDistance) {
-        sum.add(bird.position); // Add location
-        count++;
-      }
-    }
-    if (count > 0) {
-      sum.divideScalar(count);
-      return this.seek(sum); // Steer towards the location
-    } else {
-      return new Vector2(0, 0);
-    }
   }
 }

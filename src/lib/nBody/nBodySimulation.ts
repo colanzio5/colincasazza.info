@@ -5,10 +5,10 @@ import { INBodyOptions, NBodyEntity } from "@/lib/nBody/nBody.entity";
 
 export interface ISimConfig {
   nBodies: {
-    startPosition: Vector2;
+    startPosition: Vector3;
     mass: number;
     radius: number;
-    startVelocity: Vector2;
+    startVelocity: Vector3;
   }[];
 }
 export class NBodySimulation {
@@ -17,18 +17,10 @@ export class NBodySimulation {
   world: World = new World(this.gravity);
 
 
-  // call back functions
-  renderTickCallback = (timestep: number = 1 / 60): void => {
-    this.applyGravity();
-    this.world.step();
-    this.updateEntities();
-  };
-
   applyGravity() {
     this.nBodies.forEach((planetoid, index, array) => {
       const otherPlanets = array.filter((item) => item !== planetoid);
       const G = 6.67 * 10 ** -17;
-
       const fGOtherPlanets = otherPlanets.map((item) => {
         const planetoidPos = new Vector2(
           planetoid.rigidBody.translation().x,

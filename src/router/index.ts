@@ -3,7 +3,7 @@ import HomeView from "@/views/HomeView.vue";
 import NbodyDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
 import PlanetDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
 import MultiViewPortDebug from "@/views/debug/MultiViewPortDebug.vue";
-import BackgroundDebug from "@/views/debug/BackgroundDebug.vue";
+import BackgroundDebug from "@/views/background/BackgroundDebug.vue";
 
 // import JupyterNotebook from "../components/JupyterNotebook.vue";
 import Projects from "@/views/projects/Projects.vue";

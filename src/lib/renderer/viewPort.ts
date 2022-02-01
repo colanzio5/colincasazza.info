@@ -30,7 +30,7 @@ export class ViewPort {
     return getVerticalFOV(this.aspect, this.horizontalFov);
   }
 
-  mounted(props: { container: HTMLElement }): void {
+  mount(props: { container: HTMLElement }): void {
     this.container = props.container;
     this.resize();
     this.isMounted = true;
