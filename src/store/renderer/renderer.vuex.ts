@@ -120,7 +120,7 @@ export default class RendererStore extends VuexModule {
   }
 
   @mutation renderView(view: View): void {
-    view.renderTickCallback();
+    view.renderTickCallback(view);
     const { width, height, left, bottom } = view.viewPort;
     this.renderer.setViewport(left, bottom, width, height);
     this.renderer.setScissor(left, bottom, width, height);

@@ -1,7 +1,8 @@
 import { World } from "@dimforge/rapier2d-compat";
-import { Color, PerspectiveCamera, Scene, Vector3 } from "three";
+import { Color, Object3D, PerspectiveCamera, Scene, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { generateUUID } from "three/src/math/MathUtils";
+import { IEntity } from "./entity";
 import { ViewPort } from "./viewPort";
 
 export interface IControlsOptions {
@@ -26,22 +27,23 @@ export interface IViewOptions {
   id?: string;
   background?: Color;
   scene?: Scene;
-  renderTickCallback?: () => void;
+  renderTickCallback?: (view: View) => void;
   cameraOptions?: ICameraOptions;
   controlsOptions?: IControlsOptions;
 }
 
-export abstract class View {
+export class View {
   options: IViewOptions;
   id: string = generateUUID();
   background: Color = new Color("black");
   scene: Scene = new Scene();
   viewPort: ViewPort = new ViewPort();
-  physicsWorld: World = new World({ x: 0, y: 0 });
   camera!: PerspectiveCamera;
   controls!: OrbitControls;
 
-  abstract renderTickCallback(): void;
+  renderTickCallback(view: View): void {
+    throw new Error('not implemented.')
+  }
 
   constructor(options: IViewOptions) {
     this.options = options;
@@ -125,5 +127,9 @@ export abstract class View {
     this.controls.target = new Vector3(x, y, 0);
     this.camera.lookAt(x, y, 0);
     this.camera.updateMatrix();
+  }
+
+  removeEntities(...entities: Object3D[]) {
+    this.scene.children = this.scene.children.filter(e => !entities.includes(e))
   }
 }

@@ -1,13 +1,15 @@
 /// <reference types="vite/client" />
 
+import { Emitter, EventType } from 'mitt';
+import { DefineComponent } from 'vue'
+
 declare module '*.vue' {
-  import { DefineComponent } from 'vue'
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
-  const component: DefineComponent<{}, {}, any>
+  const component: DefineComponent<{
+    $eventBus: Emitter<Record<EventType, unknown>>
+  }, {}, any>
   export default component
 }
-
-declare module 'v-dragged';
 
 declare module 'theme.colors.js' {
   const themeColors: {

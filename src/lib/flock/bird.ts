@@ -14,7 +14,7 @@ import { Flock, IFlockConfig } from "./flock";
 import { generateUUID } from "three/src/math/MathUtils";
 
 export class BirdConfig {
-  id: string = generateUUID();
+  id: string = generateUUID().slice(0,8)
   // bird constants
   probability: number;
   neighborDistance: number;

@@ -22,6 +22,7 @@
 <script lang="ts">
 import RendererRootViewPortComponent from "@/components/renderer/RendererRootViewPortComponent.vue";
 import Background from "@/views/background/Background.vue";
+
 import NavBar from "@/views/NavBar.vue";
 import { Options, Vue } from "vue-class-component";
 import { vxm } from "./store";

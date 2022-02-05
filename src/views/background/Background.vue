@@ -4,11 +4,17 @@
 
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
+import useEmitter from "@/emitter";
+import { Bird, BirdConfig } from "@/lib/flock/bird";
+import { Flock, IFlockConfig } from "@/lib/flock/flock";
+import { View } from "@/lib/renderer/view";
 import { randomFromRange } from "@/lib/util/random";
-import { Vector2 } from "three";
+import { throttle } from "lodash";
+import { Color, Vector2, Vector3 } from "three";
 import { lerp } from "three/src/math/MathUtils";
 import { Options, Vue } from "vue-class-component";
-import { BackgroundView } from "./background";
+import { backgroundFlock } from "./background";
+
 @Options({
   components: {
     ViewPortComponent: ViewPortComponent,
@@ -16,53 +22,115 @@ import { BackgroundView } from "./background";
 })
 export default class Background extends Vue {
   drag = false;
-  view: BackgroundView = new BackgroundView();
+  view!: View;
+  flock!: Flock;
+  emitter = useEmitter();
+  updating: boolean = false;
 
-  async mounted(): Promise<void> {
-    // make sure the size of flock space is correct
-    this.view.flock.resize(
+  created() {
+    this.flock = backgroundFlock;
+    this.view = new View({
+      cameraOptions: {
+        fov: 75,
+        near: 0.1,
+        far: 1200,
+        startingPosition: new Vector3(0, 0, 1000),
+      },
+      controlsOptions: {
+        startDirection: new Vector3(0, 0, 0),
+        enabled: false,
+      },
+      id: "BACKGROUND_VIEW",
+      background: new Color("black"),
+      renderTickCallback: this.renderTickCallback,
+    });
+  }
+
+  mounted(): void {
+    this.flock.resize(
       this.view.visibleWidthAtZDepth,
       this.view.visibleHeightAtZDepth
     );
-    //add birds to the flock
-    const halfWidth = this.view.flock.width / 2;
-    const halfHeight = this.view.flock.height / 2;
-    for (let i = 0; i < this.view.flock.flockConfig.maxFlockSize; i++) {
+    const halfWidth = this.flock.width / 2;
+    const halfHeight = this.flock.height / 2;
+    for (let i = 0; i < this.flock.flockConfig.maxFlockSize; i++) {
       const position = new Vector2(
         randomFromRange(-halfWidth, halfWidth),
         randomFromRange(-halfHeight, halfHeight)
       );
-      this.view.addBirdToFlock({ position });
+      this.addBirdToFlock({ position });
     }
-
-    // window.addEventListener("mousedown", () => (this.drag = true));
-    // window.addEventListener(
-    //   "mousemove",
-    //   throttle(this.onMouseMove, 10)
-    // );
-    // window.addEventListener("mouseup", () => (this.drag = false));
+    this.emitter.on("apply-flock-config", this.applyFlockConfig);
+    window.addEventListener("mousedown", () => (this.drag = true));
+    window.addEventListener("mousemove", throttle(this.onMouseMove, 10));
+    window.addEventListener("mouseup", () => (this.drag = false));
   }
 
   unmounted() {
-    // window.removeEventListener("mousedown", () => (this.drag = true));
-    // window.removeEventListener(
-    //   "mousemove",
-    //   throttle(this.onMouseMove, 10)
-    // );
-    // window.removeEventListener("mouseup", () => (this.drag = false));
+    window.removeEventListener("mousedown", () => (this.drag = true));
+    window.removeEventListener("mousemove", throttle(this.onMouseMove, 10));
+    window.removeEventListener("mouseup", () => (this.drag = false));
+  }
+
+  renderTickCallback(view: View) {
+    const width = view.visibleWidthAtZDepth;
+    const height = view.visibleHeightAtZDepth;
+    this.flock.resize(width, height);
+    this.flock.birds.forEach((bird) => bird.run(this.flock.birds));
+    console.log(this.flock.flockConfig.maxFlockSize, this.updating);
+    console.log(this.flock.birds);
+  }
+
+  applyFlockConfig(flockConfig: IFlockConfig): void {
+    // save current birds
+    this.updating = true;
+    const currentBirds = this.flock.birds;
+    currentBirds.forEach(this.removeBirdFromView);
+    this.flock.birds = [];
+    currentBirds.forEach((bird) => {
+      const birdConfig = flockConfig.birdConfigs.find(
+        (c) => c.id === bird.birdConfig.id
+      );
+      if (birdConfig) this.addBirdToFlock({ ...{ ...bird, birdConfig } });
+    });
+    this.flock.flockConfig = flockConfig;
+    this.updating = false;
+  }
+
+  addBirdToFlock(params: {
+    position?: Vector2;
+    velocity?: Vector2;
+    acceleration?: Vector2;
+    birdConfig?: BirdConfig;
+  }): Bird {
+    const config =
+      params?.birdConfig || this.flock.flockConfig.birdConfigs.selectRandom();
+    const birdAdded = new Bird(this.flock, config, params);
+    if (this.flock.birds.length >= this.flock.flockConfig.maxFlockSize) {
+      const birdRemoved = this.flock.birds.shift()
+      if (birdRemoved) this.removeBirdFromView(birdRemoved)
+    }
+    this.flock.birds = this.flock.birds.concat(birdAdded);
+    this.view.scene.add(birdAdded.line);
+    return birdAdded;
+  }
+
+  removeBirdFromView(bird: Bird) {
+    this.view.removeEntities(bird.line);
+    bird.dispose();
   }
 
   onMouseMove(event: MouseEvent): void {
-    if (!this.drag) return;
-    const halfWidth = this.view.flock.width / 2;
-    const halfHeight = this.view.flock.height / 2;
+    if (!this.drag || this.updating) return;
+    const halfWidth = this.flock.width / 2;
+    const halfHeight = this.flock.height / 2;
     const normClickX = event.x / this.view.viewPort.width;
     const normClickY = event.y / this.view.viewPort.height;
     const position = new Vector2(
       lerp(-halfWidth, halfWidth, normClickX),
       lerp(-halfHeight, halfHeight, normClickY) * -1
     );
-    this.view.addBirdToFlock({ position });
+    this.addBirdToFlock({ position });
   }
 }
 </script>

@@ -56,23 +56,6 @@ export class Flock {
     this.flockConfig = flockConfig;
   }
 
-  addBird(
-    position: Vector2,
-    birdConfig: BirdConfig
-  ): {
-    birdAdded: Bird;
-    birdRemoved: Bird | undefined;
-  } {
-    const birdAdded = new Bird(this, birdConfig, { position });
-    if (this.birds.length >= this.flockConfig.maxFlockSize) {
-      const birdRemoved = this.birds.shift();
-      return { birdAdded, birdRemoved };
-    }
-    this.birds.push(birdAdded);
-    return { birdAdded, birdRemoved: undefined };
-  }
-
-
   resize(width: number, height: number): void {
     this.width = width;
     this.height = height;
