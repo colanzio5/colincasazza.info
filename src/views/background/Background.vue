@@ -8,7 +8,10 @@ import useEmitter from "@/emitter";
 import { Bird, BirdConfig } from "@/lib/flock/bird";
 import { Flock, IFlockConfig } from "@/lib/flock/flock";
 import { View } from "@/lib/renderer/view";
-import { randomFromRange } from "@/lib/util/random";
+import {
+  randomFromRange,
+  selectRandomFromWeightedArray,
+} from "@/lib/util/random";
 import { throttle } from "lodash";
 import { Color, Vector2, Vector3 } from "three";
 import { lerp } from "three/src/math/MathUtils";
@@ -73,16 +76,12 @@ export default class Background extends Vue {
   }
 
   renderTickCallback(view: View) {
-    const width = view.visibleWidthAtZDepth;
-    const height = view.visibleHeightAtZDepth;
-    this.flock.resize(width, height);
+    this.flock.resize(view.visibleWidthAtZDepth, view.visibleHeightAtZDepth);
     this.flock.birds.forEach((bird) => bird.run(this.flock.birds));
-    console.log(this.flock.flockConfig.maxFlockSize, this.updating);
-    console.log(this.flock.birds);
   }
 
+  // applies the new
   applyFlockConfig(flockConfig: IFlockConfig): void {
-    // save current birds
     this.updating = true;
     const currentBirds = this.flock.birds;
     currentBirds.forEach(this.removeBirdFromView);
@@ -104,11 +103,14 @@ export default class Background extends Vue {
     birdConfig?: BirdConfig;
   }): Bird {
     const config =
-      params?.birdConfig || this.flock.flockConfig.birdConfigs.selectRandom();
+      params?.birdConfig ||
+      selectRandomFromWeightedArray<BirdConfig>(
+        this.flock.flockConfig.birdConfigs
+      );
     const birdAdded = new Bird(this.flock, config, params);
     if (this.flock.birds.length >= this.flock.flockConfig.maxFlockSize) {
-      const birdRemoved = this.flock.birds.shift()
-      if (birdRemoved) this.removeBirdFromView(birdRemoved)
+      const birdRemoved = this.flock.birds.shift();
+      if (birdRemoved) this.removeBirdFromView(birdRemoved);
     }
     this.flock.birds = this.flock.birds.concat(birdAdded);
     this.view.scene.add(birdAdded.line);

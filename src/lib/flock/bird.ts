@@ -25,7 +25,7 @@ export class BirdConfig {
   maxSpeed: number;
   maxForce: number;
   birdSize: number;
-  color: Color;
+  color: string;
 
   constructor(props: {
     probability: number;
@@ -37,7 +37,7 @@ export class BirdConfig {
     maxSpeed: number;
     maxForce: number;
     birdSize: number;
-    color: Color;
+    color: string;
   }) {
     this.probability = props.probability;
     this.neighborDistance = props.neighborDistance;
@@ -109,7 +109,7 @@ export class Bird {
       this.getVertices().flatMap((e) => e.toArray().concat(0))
     );
     this.geometry.setAttribute("position", new BufferAttribute(vertices, 3));
-    this.material = new LineBasicMaterial({ color: this.birdConfig.color });
+    this.material = new LineBasicMaterial({ color: new Color(this.birdConfig.color) });
     this.line = new Line(this.geometry, this.material);
     this.geometry.center();
   }
@@ -133,7 +133,7 @@ export class Bird {
       new Vector2(-sideLength / 2, -r),
       new Vector2(sideLength / 2, -r),
       new Vector2(0, R * 2),
-    ].map((e) => e.add(position).rotateAround(position, angle));
+    ]
   }
 
   run(birds: Bird[]) {
@@ -173,7 +173,7 @@ export class Bird {
     // update three entity
     this.line.position.setX(this.position.x);
     this.line.position.setY(this.position.y);
-    this.line.rotation.set(0, 0, this.velocity.angle());
+    this.line.rotation.set(0, 0, this.velocity.clone().normalize().angle() - Math.PI/2);
   }
 
   seek(target: Vector2) {

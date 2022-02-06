@@ -1,6 +1,6 @@
 import themeColors from "@/styles/themeColors";
 import { Color, Object3D, Vector2 } from "three";
-import { WeightedArray } from "../util/random";
+import { IWeightedArray, WeightedArray } from "../util/random";
 import { Bird, BirdConfig } from "./bird";
 
 export interface IFlockConfig {
@@ -8,19 +8,7 @@ export interface IFlockConfig {
   maxFlockSize: number;
 }
 
-const birdConfigs = [
-  new BirdConfig({
-    probability: -1,
-    neighborDistance: 25,
-    desiredSeparation: 30,
-    separationMultiplier: 0.4,
-    alignmentMultiplier: 0.3,
-    cohesionMultiplier: 0.3,
-    maxSpeed: 2,
-    maxForce: 0.05,
-    birdSize: 5,
-    color: new Color(themeColors.secondary[200]),
-  }),
+const birdConfigs: IWeightedArray<BirdConfig> = [
   new BirdConfig({
     probability: 1 / 100,
     neighborDistance: 25,
@@ -31,9 +19,22 @@ const birdConfigs = [
     maxSpeed: 2,
     maxForce: 0.05,
     birdSize: 5,
-    color: new Color(themeColors.primary[200]),
-  })
+    color: themeColors.primary[200],
+  }),
+  new BirdConfig({
+    probability: -1,
+    neighborDistance: 25,
+    desiredSeparation: 30,
+    separationMultiplier: 0.4,
+    alignmentMultiplier: 0.3,
+    cohesionMultiplier: 0.3,
+    maxSpeed: 2,
+    maxForce: 0.05,
+    birdSize: 5,
+    color: themeColors.secondary[200],
+  }),
 ]
+
 
 export class Flock {
   flockConfig: IFlockConfig;
@@ -49,7 +50,7 @@ export class Flock {
 
   constructor(
     flockConfig: IFlockConfig = {
-      birdConfigs: new WeightedArray<BirdConfig>(...birdConfigs),
+      birdConfigs: birdConfigs,
       maxFlockSize: 200,
     }
   ) {
