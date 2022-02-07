@@ -78,9 +78,11 @@
   @apply text-highlight-200 /* Gecko Browsers */;
 }
 
+
 /** mobile scroll bar enabled on desktop */
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 1px;
+  height: 1px;
 }
 
 /* Track */

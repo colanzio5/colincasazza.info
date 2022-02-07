@@ -1,7 +1,5 @@
-import { World } from "@dimforge/rapier2d-compat";
+import { NBodyEntity } from "@/lib/nBody/nBody.entity";
 import { Vector2, Vector3 } from "three";
-import { randomFromRange } from "@/lib/util/random";
-import { INBodyOptions, NBodyEntity } from "@/lib/nBody/nBody.entity";
 
 export interface ISimConfig {
   nBodies: {
@@ -13,12 +11,9 @@ export interface ISimConfig {
 }
 export class NBodySimulation {
   nBodies: NBodyEntity[] = [];
-  gravity: { x: number; y: number } = { x: 0.0, y: 0.0 };
-  world: World = new World(this.gravity);
-
 
   applyGravity() {
-    this.nBodies.forEach((planetoid, index, array) => {
+    this.nBodies.forEach((planetoid, _, array) => {
       const otherPlanets = array.filter((item) => item !== planetoid);
       const G = 6.67 * 10 ** -17;
       const fGOtherPlanets = otherPlanets.map((item) => {

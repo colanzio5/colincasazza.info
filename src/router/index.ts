@@ -3,8 +3,7 @@ import HomeView from "@/views/HomeView.vue";
 import NbodyDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
 import PlanetDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
 import MultiViewPortDebug from "@/views/debug/MultiViewPortDebug.vue";
-import BackgroundDebug from "@/views/background/BackgroundDebug.vue";
-
+import FlockDebug from "@/views/background/FlockDebug.vue";
 // import JupyterNotebook from "../components/JupyterNotebook.vue";
 import Projects from "@/views/projects/Projects.vue";
 import CameraDemo from "@/views/projects/three/CameraDemo.vue";
@@ -20,12 +19,16 @@ const routes: Array<RouteRecordRaw> = [
   },
   // three.js projects
   {
-    path: "/projects/three/threejs-orthographic-vs-perspective",
+    path: "/projects/three/camera-types",
     component: CameraDemo,
   },
   {
     path: "/projects/three/nbody",
     component: NBody,
+  },
+  {
+    path: "/projects/three/flock",
+    component: FlockDebug,
   },
   // debug
   {
@@ -39,11 +42,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/debug/multi-viewport",
     component: MultiViewPortDebug,
-  },  
-  {
-    path: "/debug/background",
-    component: BackgroundDebug,
-  },
+  }
 ];
 
 const router = createRouter({

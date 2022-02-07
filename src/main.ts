@@ -6,11 +6,17 @@ import router from "./router";
 import { store } from "./store";
 import "./styles/index.css";
 
-const emitter = mitt()
-const app = createApp(App);
-app.config.globalProperties.emitter = emitter;
+import RAPIER from "@dimforge/rapier2d-compat";
 
-app.provide("eventBus", emitter)
-app.use(store);
-app.use(router);
-app.mount("#app");
+RAPIER.init().then(() => {
+  const emitter = mitt();
+  const app = createApp(App);
+  app.config.globalProperties.emitter = emitter;
+
+  app.provide("eventBus", emitter);
+  app.use(store);
+  app.use(router);
+  app.mount("#app");
+});
+
+export { RAPIER };

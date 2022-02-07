@@ -51,15 +51,15 @@
         sep 2015 - dec 2019 - bachelor’s degree in computer science
       </div>
     </div>
-    <router-link class="select-text cursor-pointer" to="/debug/background">
-      <div class="link text-sm">like the background? click here</div>
-    </router-link>
   </div>
+  <router-link class="select-text cursor-pointer absolute bottom-4 left-4" to="/projects/three/flock">
+    <div class="link text-sm">like the background? click here</div>
+  </router-link>
 </template>
 
 <style lang="postcss">
 .home-wrapper {
-  @apply h-full select-none text-white overflow-y-scroll text-center p-4 mt-4 sm:min-w-[500px] sm:text-left sm:p-0 sm:w-1/3;
+  @apply h-full w-full select-none pt-4 text-white overflow-y-scroll;
 }
 </style>
 

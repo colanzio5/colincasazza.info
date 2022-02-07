@@ -2,12 +2,19 @@
   <div class="container"></div>
 </template>
 
+<style lang="postcss">
+.dg.ac {
+  z-index: 9999;
+  color: white;
+}
+</style>
+
 <script lang="ts">
-import { Vue } from "vue-class-component";
-import Dat, { GUI } from "dat.gui";
-import { Vector2 } from "three";
-import NBody from "@/views/projects/three/NBody.vue";
 import { ISimConfig } from "@/lib/nBody/nBodySimulation";
+import NBody from "@/views/projects/three/NBody.vue";
+import { GUI } from "dat.gui";
+import { Vector3 } from "three";
+import { Vue } from "vue-class-component";
 import { Model } from "vue-property-decorator";
 
 
@@ -16,9 +23,6 @@ export default class Controls extends Vue {
   dataPrescision = 10;
   gui: GUI = new GUI();
 
-  get simConfig(): ISimConfig {
-    return (this.$props as any).simConfig as ISimConfig;
-  }
   get nBodySimulation(): NBody {
     return (this.$parent as NBody)
   }
@@ -67,16 +71,18 @@ export default class Controls extends Vue {
   addNbody() {
     const randPos = () => {
       const bounds = 380400;
-      return new Vector2(
+      return new Vector3(
         this.randomIntFromInterval(-bounds, bounds),
-        this.randomIntFromInterval(-bounds, bounds)
+        this.randomIntFromInterval(-bounds, bounds),
+        0
       );
     };
     const randVel = () => {
       const bounds = 25000;
-      return new Vector2(
+      return new Vector3(
         this.randomIntFromInterval(-bounds, bounds),
-        this.randomIntFromInterval(-bounds, bounds)
+        this.randomIntFromInterval(-bounds, bounds),
+        0
       );
     };
     const planetDensity = 10 ** 18;
