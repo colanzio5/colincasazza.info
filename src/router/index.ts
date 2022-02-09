@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import HomeView from "@/views/HomeView.vue";
-import NbodyDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
-import PlanetDebugComponent from "@/views/debug/PlanetDebugComponent.vue";
+import NBodyEntityDebug from "@/views/debug/NBodyEntityDebug.vue";
 import MultiViewPortDebug from "@/views/debug/MultiViewPortDebug.vue";
 import FlockDebug from "@/views/background/FlockDebug.vue";
 // import JupyterNotebook from "../components/JupyterNotebook.vue";
@@ -32,12 +31,8 @@ const routes: Array<RouteRecordRaw> = [
   },
   // debug
   {
-    path: "/debug/nbody",
-    component: NbodyDebugComponent,
-  },
-  {
-    path: "/debug/planet",
-    component: PlanetDebugComponent,
+    path: "/debug/terrain-generation",
+    component: NBodyEntityDebug,
   },
   {
     path: "/debug/multi-viewport",

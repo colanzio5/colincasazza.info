@@ -1,25 +1,22 @@
-import { RAPIER } from "@/main";
 import {
   BufferAttribute,
   BufferGeometry,
   Color,
   Points,
   PointsMaterial,
+  Vector2,
   Vector3,
 } from "three";
-import { IEntity } from "../renderer/entity";
 
-export class NBodyPathEntity implements IEntity {
+export class TracePathEntity {
   geometry: BufferGeometry;
   material: PointsMaterial;
   line: Points;
   maxPoints = 10000;
-  physicsEnabled = false;
-  rigidBody?: RAPIER.RigidBody;
 
-  constructor(startingPosition: Vector3, color: Color) {
+  constructor(startingPosition: Vector2, color: Color) {
     const startingPoints = new Array(this.maxPoints)
-      .fill(startingPosition.toArray())
+      .fill(startingPosition.toArray().concat(0))
       .flat(2);
     const startingPointsFloat32Array = new Float32Array(this.maxPoints * 3);
     startingPointsFloat32Array.set(startingPoints);
@@ -51,7 +48,7 @@ export class NBodyPathEntity implements IEntity {
     newPoints.push(...rolloverItems);
     newPoints[0] = point.x;
     newPoints[1] = point.y;
-    newPoints[2] = 0;
+    newPoints[2] = point.z;
     // ! compare performance to line.geometry.setFromPoints();
     this.line.geometry.setAttribute(
       "position",

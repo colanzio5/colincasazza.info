@@ -23,9 +23,10 @@ export default class ViewPort extends Vue {
     })
   }
 
-  unmounted(): void {
+  beforeUnmount() {
     vxm.renderer.removeView({ viewId: this.view.id });
   }
+
 }
 </script>
 

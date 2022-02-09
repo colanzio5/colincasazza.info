@@ -7,6 +7,7 @@ import useEmitter from "@/emitter";
 import { BirdConfig } from "@/lib/flock/bird";
 import { IFlockConfig } from "@/lib/flock/flock";
 import { randomColor } from "@/lib/util/random";
+import themeColors from "@/styles/themeColors";
 import { GUI } from "dat.gui";
 import { cloneDeep } from "lodash";
 import { Vue } from "vue-class-component";
@@ -116,7 +117,7 @@ export default class BackgroundDebug extends Vue {
         maxSpeed: 2,
         maxForce: 0.05,
         birdSize: 5,
-        color: randomColor().getStyle(),
+        color: themeColors.primary["100"],
         probability: 0.0,
       })
     );

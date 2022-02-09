@@ -52,14 +52,16 @@
       </div>
     </div>
   </div>
-  <router-link class="select-text cursor-pointer absolute bottom-4 left-4" to="/projects/three/flock">
-    <div class="link text-sm">like the background? click here</div>
-  </router-link>
+  <div class="absolute bottom-4 left-4">
+    <router-link class="select-text cursor-pointer" to="/projects/three/flock">
+      <div class="link text-sm">like the background? click here</div>
+    </router-link>
+  </div>
 </template>
 
 <style lang="postcss">
 .home-wrapper {
-  @apply h-full w-full select-none pt-4 text-white overflow-y-scroll;
+  @apply h-full max-w-xl sm:w-full select-none pt-4 text-white overflow-y-scroll ;
 }
 </style>
 

@@ -1,36 +1,17 @@
+import { IViewOptions } from "@/lib/renderer/view";
+import { ViewPort } from "@/lib/renderer/viewPort";
 import { Color, Object3D, PerspectiveCamera, Scene, Vector3 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { generateUUID } from "three/src/math/MathUtils";
-import { ViewPort } from "./viewPort";
+import { createModule } from "vuex-class-component";
 
-export interface IControlsOptions {
-  enabled?: boolean;
-  minAzimuthAngle?: number;
-  minPolarAngle?: number;
-  enableRotate?: boolean;
-  startDirection?: Vector3;
-}
+const VuexModule = createModule({
+  namespaced: "view",
+  strict: false,
+  enableLocalWatchers: true,
+});
 
-export interface ICameraOptions {
-  fov?: number;
-  aspect?: number;
-  near?: number;
-  far?: number;
-  startingPosition?: Vector3;
-}
-
-export interface IViewData extends Object {}
-
-export interface IViewOptions {
-  id: string;
-  renderTickCallback: (view: View) => void;
-  background?: Color;
-  scene?: Scene;
-  cameraOptions?: ICameraOptions;
-  controlsOptions?: IControlsOptions;
-}
-
-export class View {
+export default class ViewStore extends VuexModule {
   options: IViewOptions;
   id: string = generateUUID();
   background: Color = new Color("black");
@@ -39,13 +20,12 @@ export class View {
   camera!: PerspectiveCamera;
   controls!: OrbitControls;
 
-  renderTickCallback(view: View): void {
-    throw new Error('not implemented.')
-  }
+  renderTickCallback = (): void => {};
 
   constructor(options: IViewOptions) {
+    super();
     this.options = options;
-    Object.assign(this, options)
+    Object.assign(this, options);
   }
 
   get isMounted() {
@@ -128,6 +108,8 @@ export class View {
   }
 
   removeEntities(...entities: Object3D[]) {
-    this.scene.children = this.scene.children.filter(e => !entities.includes(e))
+    this.scene.children = this.scene.children.filter(
+      (e) => !entities.includes(e)
+    );
   }
 }

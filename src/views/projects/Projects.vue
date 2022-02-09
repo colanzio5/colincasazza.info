@@ -32,18 +32,18 @@ export default class Projects extends Vue {
       subject: "three.js",
       items: [
         {
-          heading: "nbody",
-          text: "flocking simulation.",
+          heading: "flocking",
+          text: "simulated flocking behavior based on separation, alignment, and cohesion. inspired by <a class='text-primary-100' href='https://thecodingtrain.com/CodingChallenges/124-flocking-boids.html'>thecodingtrain.com<a/>.",
           link: "/projects/three/flock",
         },
         {
           heading: "nbody",
-          text: "simple nbody simulation w/ <a href='https://rapier.rs/'>rapier</a> physics engine.",
+          text: "simple nbody simulation w/ <a class='text-primary-100' href='https://rapier.rs/'>rapier</a> physics engine.",
           link: "/projects/three/nbody",
         },
         {
           heading: "perspective vs ortho camera demo",
-          text: "a quick three.js camera demo, taken from the three.js website's examples and implemented here in vue3. <br /> see <a href='https://threejs.org/examples/#webgl_camera'>threejs.org/examples/#webgl_camera</a> for original implementation.",
+          text: "a quick three.js camera demo, taken from the three.js website's examples and implemented in vue3. <a class='text-primary-100' href='https://threejs.org/examples/#webgl_camera'>here's</a> the original implementation.",
           link: "/projects/three/camera-types",
         },
       ],
@@ -58,6 +58,21 @@ export default class Projects extends Vue {
         },
       ],
     },
+    (process.env.NODE_ENV !== "production" ? {
+      subject: "debug",
+      items: [
+        {
+          heading: "2d terrain generation",
+          text: "paramaterized terrain generation with simplex3 noise.",
+          link: "/debug/terrain-generation",
+        },
+        {
+          heading: "multiple viewports",
+          text: "rendering to multiple virtual viewports in the same renderer",
+          link: "/debug/multi-viewport",
+        },
+      ],
+    } : null),
   ];
 }
 </script>

@@ -1,21 +1,27 @@
 <template>
-  <div class="w-full h-full">
-    <NBodyDatGUI :simConfig="simConfig" />
-    <ViewPortComponent class="w-full h-full" :view="view" />
-  </div>
+  <NBodyDatGUI :simConfig="simConfig" />
+  <ViewPortComponent class="w-full h-full" :view="view" />
 </template>
 
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
-import { INBodyOptions, NBodyEntity } from "@/lib/nBody/nBody.entity";
-import { ISimConfig, NBodySimulation } from "@/lib/nBody/nBodySimulation";
+import {
+  INBodyEntityOptions,
+  NBodyEntity,
+} from "@/lib/renderer/entitys/nbody.entity";
 import { View } from "@/lib/renderer/view";
-import { randomFromRange } from "@/lib/util/random";
+import { randomFromRange, randomIntFromRange } from "@/lib/util/random";
 import themeColors from "@/styles/themeColors";
-import RAPIER from "@dimforge/rapier2d-compat";
-import { Color, Vector3 } from "three";
+import RAPIER, {
+  RigidBody,
+  RigidBodyDesc,
+  RigidBodyType,
+  World,
+} from "@dimforge/rapier2d-compat";
+import { toRaw } from "@vue/reactivity";
+import { Color, ColorRepresentation, Scene, Vector2, Vector3 } from "three";
 import { Options, Vue } from "vue-class-component";
-import NBodyDatGUI from "./NBodyDatGUI.vue";
+import NBodyDatGUI from "@/views/projects/three/NBodyDatGUI.vue"
 
 @Options({
   components: {
@@ -25,80 +31,138 @@ import NBodyDatGUI from "./NBodyDatGUI.vue";
 })
 export default class NBody extends Vue {
   view!: View;
-  physicsWorld = new RAPIER.World({ x: 0, y: 0 });
-  nBodySimulation!: NBodySimulation;
-  simConfig: ISimConfig = {
-    nBodies: [
-      {
-        startPosition: new Vector3(0, 0, 0),
-        mass: 7.34767309 * 10 ** 22,
-        radius: 1737.4,
-        startVelocity: new Vector3(0, 25000, 0),
-      },
-      {
-        startPosition: new Vector3(0, 0, 0),
-        mass: 5.972 * 10 ** 24,
-        radius: 6371,
-        startVelocity: new Vector3(0, 100, 0),
-      },
-    ],
-  };
+  nBodies: { entity: NBodyEntity; rigidBody: RigidBody }[] = [];
+  simConfig: {
+    radius: number;
+    mass: number;
+    origin: Vector3;
+    linearVelocity: Vector3;
+    angularVelocity: number;
+    color: ColorRepresentation;
+  }[] = [
+    {
+      origin: new Vector3(-380400, 0),
+      mass: 7.34767309 * 10 ** 22,
+      radius: 1737.4,
+      linearVelocity: new Vector3(0, 2500),
+      angularVelocity: 0,
+      color: themeColors.primary["100"],
+    },
+    {
+      origin: new Vector3(0, 0),
+      mass: 5.972 * 10 ** 24,
+      radius: 6371,
+      linearVelocity: new Vector3(0, 100),
+      angularVelocity: 0,
+      color: themeColors.primary["100"],
+    },
+  ];
+  physicsWorld!: World;
 
   created(): void {
+    this.physicsWorld = new RAPIER.World({ x: 0, y: 0 });
     this.view = new View({
       cameraOptions: {
         fov: 75,
         near: 0.1,
-        far: 100000,
-        startingPosition: new Vector3(0, 0, 10000),
+        far: 1000000,
+        startingPosition: new Vector3(0, 0, 400000),
       },
       controlsOptions: {
-        startDirection: new Vector3(0, 0, 0),
         enabled: true,
+        startDirection: new Vector3(0, 0, 0),
       },
       renderTickCallback: this.renderTickCallback,
-      id: "NBODY_SIMULATION",
+      id: "PLANET_DEBUG_VIEW",
       background: new Color("black"),
     });
-    this.nBodySimulation = new NBodySimulation();
   }
 
-  configSimulation(simConfig: ISimConfig) {
-    this.nBodySimulation.nBodies = simConfig.nBodies.map((body) => {
-      const nBodyConfig: INBodyOptions = {
-        numberVertices: randomFromRange(500,1000),
-        frequency: randomFromRange(0, 10),
-        magnitude: randomFromRange(0, 10),
-        seed: randomFromRange(0, 10),
-        radius: body.radius,
-        mass: body.mass,
-        origin: body.startPosition,
-        startingLinearVelocity: body.startVelocity,
-        color: new Color(themeColors.primary[100]),
-      };
-      return new NBodyEntity(nBodyConfig, this.physicsWorld);
-    });
-    //add new nBodies to the scene
-    this.view.scene = this.view.scene.add(
-      ...this.nBodySimulation.nBodies.map((body) => body.line)
-    );
+  mounted(): void {
+    this.configSimulation();
   }
 
-  renderTickCallback() {
-    console.log(this.view.viewPort)
-    this.nBodySimulation.applyGravity();
+  unmounted(): void {
+    for (const { entity } of this.nBodies) {
+      this.view.scene.remove(toRaw(entity.line));
+      this.view.scene.remove(toRaw(entity.debugPath.line));
+    }
+  }
+  renderTickCallback(_: View) {
+    this.applyGravity();
     this.physicsWorld.step();
-    this.nBodySimulation.updateEntities();
+    // update visual entities to reflect rigidbodies
+    for (const { entity, rigidBody } of this.nBodies) {
+      const { x, y } = rigidBody.translation();
+      entity.line.position.setX(x);
+      entity.line.position.setY(y);
+      entity.line.rotation.set(0, 0, rigidBody.rotation());
+      entity.line.geometry.computeBoundingSphere();
+      entity.debugPath.addPoint(new Vector3(x, y));
+    }
+  }
+
+  configSimulation() {
+    this.nBodies = Array.from(this.simConfig).map((config) => {
+      const options: INBodyEntityOptions = {
+        numberVertices: randomIntFromRange(500, 1000),
+        frequency: randomIntFromRange(0, 5),
+        magnitude: randomFromRange(0, 0.3),
+        seed: randomIntFromRange(0, 5),
+        ...config,
+      };
+      const entity = new NBodyEntity(options);
+      const rigidBodyDesc = new RigidBodyDesc(RigidBodyType.Dynamic)
+        .setTranslation(options.origin.x, options.origin.y)
+        .setAngvel(options.angularVelocity)
+        .setAdditionalMass(options.mass)
+        .setCanSleep(true)
+        .setCcdEnabled(false)
+        .setLinvel(options.linearVelocity.x, options.linearVelocity.y);
+      const rigidBody = this.physicsWorld.createRigidBody(rigidBodyDesc);
+      return { entity, rigidBody };
+    });
+
+    for (const { entity } of this.nBodies) {
+      this.view.scene.add(toRaw(entity.line));
+      this.view.scene.add(toRaw(entity.debugPath.line));
+    }
   }
 
   clearSimulation() {
-    this.nBodySimulation.nBodies.forEach(body => this.view.scene.remove(body.line));
-    this.nBodySimulation.nBodies.forEach((body) => body.destroy());
+    this.nBodies.forEach(body => body.entity.dispose())
+    this.view.scene = new Scene();
+    this.nBodies = []
   }
 
-  resetSimulation() {
-    this.clearSimulation();
-    this.configSimulation(this.simConfig);
+  applyGravity() {
+    for (const body of this.nBodies) {
+      const otherBodies = this.nBodies.filter((b) => b !== body);
+      const { rigidBody } = body;
+      const G = 6.67 * 10 ** -16;
+      const fGOtherBodies = otherBodies.map((item) => {
+        const planetoidPos = new Vector2(
+          rigidBody.translation().x,
+          rigidBody.translation().y
+        );
+        const itemPos = new Vector2(
+          item.rigidBody.translation().x,
+          item.rigidBody.translation().y
+        );
+        const R = itemPos.distanceTo(planetoidPos);
+        return itemPos
+          .clone()
+          .sub(planetoidPos)
+          .multiplyScalar(G * ((rigidBody.mass() * rigidBody.mass()) / R ** 2));
+      });
+      const fGNet = fGOtherBodies.reduce(
+        (previous: Vector2, current: Vector2) => previous.add(current),
+        new Vector2()
+      );
+      rigidBody.applyForce(fGNet, true);
+    }
   }
 }
 </script>
+
+<style lang="scss"></style>
