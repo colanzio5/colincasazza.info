@@ -1,7 +1,7 @@
 <template>
   <div class="projects-wrapper">
     <div v-for="category in categories" :key="category.subject">
-      <div class="text-4xl mb-2">{{ category.subject }}</div>
+      <div class="text-4xl mb-2 text-secondary-200">{{ category.subject }}</div>
       <div class="mb-2" v-for="item in category.items" :key="item.heading">
         <div class="text-xl">{{ item.heading }}</div>
         <div class="text-sm" v-html="item.text"></div>

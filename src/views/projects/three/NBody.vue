@@ -42,7 +42,7 @@ export default class NBody extends Vue {
   }[] = [
     {
       origin: new Vector3(-380400, 0),
-      mass: 7.34767309 * 10 ** 22,
+      mass: 7.34767309 * (10 ** 22),
       radius: 1737.4,
       linearVelocity: new Vector3(0, 2500),
       angularVelocity: 0,
@@ -50,7 +50,7 @@ export default class NBody extends Vue {
     },
     {
       origin: new Vector3(0, 0),
-      mass: 5.972 * 10 ** 24,
+      mass: 5.972 * (10 ** 24),
       radius: 6371,
       linearVelocity: new Vector3(0, 100),
       angularVelocity: 0,

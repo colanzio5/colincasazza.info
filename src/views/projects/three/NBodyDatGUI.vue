@@ -105,7 +105,7 @@ export default class Controls extends Vue {
     this._simConfig.push({
       origin: randPos(),
       radius: this.randomIntFromInterval(2000, 5000),
-      mass: randomFromRange(10*10*22, 10*10*24),
+      mass: randomFromRange(10*(10**22), 10*(10**24)),
       linearVelocity: randVel(),
       angularVelocity: randomFromRange(-2, 2),
       color: themeColors.primary["100"],

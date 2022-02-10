@@ -3,10 +3,12 @@ import HomeView from "@/views/HomeView.vue";
 import NBodyEntityDebug from "@/views/debug/NBodyEntityDebug.vue";
 import MultiViewPortDebug from "@/views/debug/MultiViewPortDebug.vue";
 import FlockDebug from "@/views/background/FlockDebug.vue";
-// import JupyterNotebook from "../components/JupyterNotebook.vue";
+import JupyterNotebook from "../components/JupyterNotebook.vue";
 import Projects from "@/views/projects/Projects.vue";
 import CameraDemo from "@/views/projects/three/CameraDemo.vue";
 import NBody from "@/views/projects/three/NBody.vue";
+import JupyterNotebook from "@/components/JupyterNotebook.vue";
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: "",
@@ -29,6 +31,12 @@ const routes: Array<RouteRecordRaw> = [
     path: "/projects/three/flock",
     component: FlockDebug,
   },
+  //notebooks
+  {
+    path: "/projects/notebooks/2d-inverse-kinematics",
+    component: JupyterNotebook,
+    props: { notebookPath: "/notebooks/Inverse Kinematics Approximation.html" },
+  },
   // debug
   {
     path: "/debug/terrain-generation",
@@ -37,7 +45,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/debug/multi-viewport",
     component: MultiViewPortDebug,
-  }
+  },
 ];
 
 const router = createRouter({
