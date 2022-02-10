@@ -1,10 +1,9 @@
 import themeColors from "@/styles/themeColors";
-import { Color, Object3D, Vector2 } from "three";
-import { IWeightedArray, WeightedArray } from "../util/random";
+import { IWeightedArray } from "../util/random";
 import { Bird, BirdConfig } from "./bird";
 
 export interface IFlockConfig {
-  birdConfigs: WeightedArray<BirdConfig>;
+  birdConfigs: IWeightedArray<BirdConfig>;
   maxFlockSize: number;
 }
 

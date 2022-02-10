@@ -91,7 +91,7 @@ export default class Background extends Vue {
     this.flock.birds = [];
     currentBirds.forEach((bird) => {
       const birdConfig = flockConfig.birdConfigs.find(
-        (c) => c.id === bird.birdConfig.id
+        (c: BirdConfig) => c.id === bird.birdConfig.id
       );
       if (birdConfig) this.addBirdToFlock({ ...{ ...bird, birdConfig } });
     });

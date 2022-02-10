@@ -62,7 +62,7 @@ export default class NBodyEntityComponent extends Vue {
   }
 
   unmounted(): void {
-    this.planetEntity.destroy();
+    this.planetEntity.dispose();
   }
 
   renderTickCallback(_: View): void {

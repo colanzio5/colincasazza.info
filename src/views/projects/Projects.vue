@@ -1,8 +1,8 @@
 <template>
   <div class="projects-wrapper">
-    <div v-for="category in categories" :key="category.subject">
-      <div class="text-4xl mb-2 text-secondary-200">{{ category.subject }}</div>
-      <div class="mb-2" v-for="item in category.items" :key="item.heading">
+    <div v-for="category in categories" :key="category?.subject">
+      <div class="text-4xl mb-2 text-secondary-200">{{ category?.subject }}</div>
+      <div class="mb-2" v-for="item in category?.items" :key="item.heading">
         <div class="text-xl">{{ item.heading }}</div>
         <div class="text-sm" v-html="item.text"></div>
         <router-link class="link" :to="item.link">{{
@@ -23,7 +23,7 @@
 import { Vue } from "vue-class-component";
 export default class Projects extends Vue {
   getFullLink(item: { link: string }): string {
-    return window.location.origin + item.link;
+    return (window.location.origin || "colincasazza.info") + item.link;
   }
   // ! this (and router objects) should both be coming
   // ! from the same source. [refactor]

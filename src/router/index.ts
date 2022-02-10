@@ -7,7 +7,6 @@ import JupyterNotebook from "../components/JupyterNotebook.vue";
 import Projects from "@/views/projects/Projects.vue";
 import CameraDemo from "@/views/projects/three/CameraDemo.vue";
 import NBody from "@/views/projects/three/NBody.vue";
-import JupyterNotebook from "@/components/JupyterNotebook.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {

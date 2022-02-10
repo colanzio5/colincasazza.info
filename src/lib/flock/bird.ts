@@ -9,12 +9,12 @@ import {
   Vector2,
   Vector3,
 } from "three";
-import { randomFromRange } from "../util/random";
+import { randomFromRange, selectRandomFromWeightedArray } from "../util/random";
 import { Flock, IFlockConfig } from "./flock";
 import { generateUUID } from "three/src/math/MathUtils";
 
 export class BirdConfig {
-  id: string = generateUUID().slice(0,8)
+  id: string = generateUUID().slice(0, 8);
   // bird constants
   probability: number;
   neighborDistance: number;
@@ -83,7 +83,7 @@ export class Bird {
     this.width = flock.width;
     this.birdConfig = birdConfig
       ? birdConfig
-      : flock.flockConfig.birdConfigs.selectRandom();
+      : selectRandomFromWeightedArray(flock.flockConfig.birdConfigs);
     this.position = options?.position
       ? options.position
       : new Vector2(
@@ -109,7 +109,9 @@ export class Bird {
       this.getVertices().flatMap((e) => e.toArray().concat(0))
     );
     this.geometry.setAttribute("position", new BufferAttribute(vertices, 3));
-    this.material = new LineBasicMaterial({ color: new Color(this.birdConfig.color) });
+    this.material = new LineBasicMaterial({
+      color: new Color(this.birdConfig.color),
+    });
     this.line = new Line(this.geometry, this.material);
     this.geometry.center();
   }
@@ -133,7 +135,7 @@ export class Bird {
       new Vector2(-sideLength / 2, -r),
       new Vector2(sideLength / 2, -r),
       new Vector2(0, R * 2),
-    ]
+    ];
   }
 
   run(birds: Bird[]) {
@@ -173,7 +175,11 @@ export class Bird {
     // update three entity
     this.line.position.setX(this.position.x);
     this.line.position.setY(this.position.y);
-    this.line.rotation.set(0, 0, this.velocity.clone().normalize().angle() - Math.PI/2);
+    this.line.rotation.set(
+      0,
+      0,
+      this.velocity.clone().normalize().angle() - Math.PI / 2
+    );
   }
 
   seek(target: Vector2) {

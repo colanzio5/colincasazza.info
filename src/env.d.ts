@@ -11,7 +11,7 @@ declare module '*.vue' {
   export default component
 }
 
-declare module 'theme.colors.js' {
+declare module '*theme.colors.js' {
   const themeColors: {
     primary: {
       "100": number,
