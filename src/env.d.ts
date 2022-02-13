@@ -2,6 +2,7 @@
 
 import { Emitter, EventType } from 'mitt';
 import { DefineComponent } from 'vue'
+import { Router, LocationAsPath } from 'vue-router'
 
 declare module '*.vue' {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
@@ -9,6 +10,29 @@ declare module '*.vue' {
     $eventBus: Emitter<Record<EventType, unknown>>
   }, {}, any>
   export default component
+}
+
+declare module 'vue/types/vue' {
+  // Augment component instance type
+  interface Vue {
+    beforeRouteEnter?(
+      to: Router,
+      from: Router,
+      next: (to?: LocationAsPath | false | ((vm: Vue) => void)) => void
+    ): void
+
+    beforeRouterLeave?(
+      to: Router,
+      from: Router,
+      next: (to?: LocationAsPath | false | ((vm: Vue) => void)) => void
+    ): void
+
+    beforeRouterUpdate?(
+      to: Router,
+      from: Router,
+      next: (to?: LocationAsPath | false | ((vm: Vue) => void)) => void
+    ): void
+  }
 }
 
 declare module '*theme.colors.js' {

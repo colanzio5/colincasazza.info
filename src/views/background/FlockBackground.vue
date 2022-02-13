@@ -31,7 +31,6 @@ export default class Background extends Vue {
   updating: boolean = false;
 
   created() {
-    console.log("created");
     this.flock = backgroundFlock;
     this.view = new View({
       cameraOptions: {
@@ -51,8 +50,6 @@ export default class Background extends Vue {
   }
 
   mounted(): void {
-    console.log("mounted");
-
     this.flock.resize(
       this.view.visibleWidthAtZDepth,
       this.view.visibleHeightAtZDepth

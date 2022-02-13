@@ -71,6 +71,16 @@ export default class Projects extends Vue {
           text: "rendering to multiple virtual viewports in the same renderer",
           link: "/debug/multi-viewport",
         },
+        {
+          heading: "3d eq poc",
+          text: "3d plane from audio analyzer stream",
+          link: "/debug/eq"
+        },
+        {
+          heading: "waves on a plane",
+          text: "simple morphing a plane",
+          link: "/debug/waves"
+        }
       ],
     } : null),
   ];

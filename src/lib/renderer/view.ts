@@ -23,7 +23,7 @@ export interface IViewData extends Object {}
 
 export interface IViewOptions {
   id: string;
-  renderTickCallback: (view: View) => void;
+  renderTickCallback: (view: View, timeStepMS: number) => void;
   background?: Color;
   scene?: Scene;
   cameraOptions?: ICameraOptions;
@@ -39,7 +39,7 @@ export class View {
   camera!: PerspectiveCamera;
   controls!: OrbitControls;
 
-  renderTickCallback(view: View): void {
+  renderTickCallback(view: View, timeStepMS: number): void {
     throw new Error('not implemented.')
   }
 

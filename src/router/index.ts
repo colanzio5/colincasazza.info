@@ -7,6 +7,8 @@ import JupyterNotebook from "../components/JupyterNotebook.vue";
 import Projects from "@/views/projects/Projects.vue";
 import CameraDemo from "@/views/projects/three/CameraDemo.vue";
 import NBody from "@/views/projects/three/NBody.vue";
+import WavesOnAPlaneGeometry from "@/views/debug/WavesOnAPlaneGeometry.vue";
+import EQDebug from "@/views/debug/EQDebug.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -45,6 +47,14 @@ const routes: Array<RouteRecordRaw> = [
     path: "/debug/multi-viewport",
     component: MultiViewPortDebug,
   },
+  {
+    path: "/debug/waves",
+    component: WavesOnAPlaneGeometry
+  },
+  {
+    path: "/debug/eq",
+    component: EQDebug
+  }
 ];
 
 const router = createRouter({

@@ -6,7 +6,6 @@
 import useEmitter from "@/emitter";
 import { BirdConfig } from "@/lib/flock/bird";
 import { IFlockConfig } from "@/lib/flock/flock";
-import { randomColor } from "@/lib/util/random";
 import themeColors from "@/styles/themeColors";
 import { GUI } from "dat.gui";
 import { cloneDeep } from "lodash";
@@ -37,6 +36,7 @@ export default class BackgroundDebug extends Vue {
   }
 
   async initGui() {
+    this.destroyGUI();
     this.gui = new GUI({ autoPlace: false, closeOnTop: true });
     this.container.appendChild(this.gui.domElement);
     this.gui.domElement.id = "gui";
