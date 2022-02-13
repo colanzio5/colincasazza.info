@@ -2,7 +2,7 @@
   <div
     :ref="domCanvasId"
     :id="domCanvasId"
-    class="absolute w-full h-full"
+    class="absolute w-full h-full min-h-full min-w-full"
   />
 </template>
 
@@ -28,11 +28,13 @@ export default class RendererRootViewPortComponent extends Vue {
 
   mounted(): void {
     vxm.renderer.mounted({ container: this.canvasElement });
-    window.addEventListener("resize", vxm.renderer.resize);
+    this.canvasElement.addEventListener("resize", vxm.renderer.resize)
+    this.canvasElement.addEventListener("orientation_change", vxm.renderer.resize)
   }
 
   unmounted(): void {
     this.canvasElement.removeEventListener("resize", vxm.renderer.resize);
+    this.canvasElement.removeEventListener("orientation_change", vxm.renderer.resize)
     // remove any child components created by three in this component
     this.renderer.renderer.dispose();
     while (this.statsElement?.lastChild)

@@ -70,7 +70,8 @@ export default class BackgroundDebug extends Vue {
         birdFolder
           .addColor(config, "color")
           .setValue(config.color)
-          .onFinishChange(this.applyChanges);
+          .onFinishChange(this.applyChanges)
+          .domElement.inputMode = "none"; // disable keyboard inputs
         const dist = birdFolder
           .add(config, "neighborDistance")
           .min(0)

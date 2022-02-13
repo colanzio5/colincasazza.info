@@ -68,7 +68,6 @@ export default class WavesOnAPlaneGeometry extends Vue {
     this.plane = new Mesh(this.geometry, this.material);
     this.plane.rotateX(-70 * (Math.PI / 180));
     this.geometry.center();
-    console.log(this.plane.geometry);
   }
 
   mounted(): void {
@@ -98,9 +97,6 @@ export default class WavesOnAPlaneGeometry extends Vue {
     for (let i = prevStart; i <= prevEnd; i++) {
       next[i * current.itemSize + 2] = 0;
     }
-    console.log(row, start, end);
-    console.log(prevRow, prevStart, prevEnd);
-    console.log("----");
     this.geometry.setAttribute(
       "position",
       new BufferAttribute(next, current.itemSize)

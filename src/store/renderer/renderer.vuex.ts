@@ -1,6 +1,6 @@
 import { RenderLoop } from "@/lib/renderer/renderLoop";
 import { View } from "@/lib/renderer/view";
-import { ViewPort } from "@/lib/renderer/viewPort";
+import { RendererRootViewPort } from "@/lib/renderer/viewPort";
 import { vxm } from "@/store";
 import { WebGLRenderer } from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
@@ -18,7 +18,7 @@ export default class RendererStore extends VuexModule {
   stats: Stats = Stats();
   renderer: WebGLRenderer = new WebGLRenderer({ antialias: true });
   renderLoop: RenderLoop = new RenderLoop();
-  rendererRootViewPort: ViewPort = new ViewPort();
+  rendererRootViewPort: RendererRootViewPort = new RendererRootViewPort();
 
   @mutation mounted(props: { container: HTMLCanvasElement }): void {
     vxm.renderer.rendererRootViewPort.mount({ container: props.container });
@@ -33,15 +33,14 @@ export default class RendererStore extends VuexModule {
   }
 
   @mutation resize(): void {
+    vxm.renderer.rendererRootViewPort.resize();
     // first resize the renderer root viewport
     const { width, height } = vxm.renderer.rendererRootViewPort;
     vxm.renderer.renderer.setSize(width, height, true);
-
     // finally resize all the views
-    vxm.renderer.rendererRootViewPort.resize();
     vxm.renderer.views.forEach((view) => {
-      view.camera.aspect = vxm.renderer.rendererRootViewPort.aspect;
       view.viewPort.resize();
+      view.camera.aspect = vxm.renderer.rendererRootViewPort.aspect;
     });
   }
 
@@ -117,6 +116,7 @@ export default class RendererStore extends VuexModule {
 
       const timeStepMS = vxm.renderer.renderLoop.elapsed / 1000;
       // render each view
+      vxm.renderer.resize()
       vxm.renderer.views.forEach((view) =>
         vxm.renderer.renderView({ view, timeStepMS })
       );

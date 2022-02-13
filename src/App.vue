@@ -3,7 +3,7 @@
     <div class="w-full h-full relative">
       <RendererRootViewPortComponent class="z-10" />
       <div v-if="isAppReady">
-        <FlockBackground class="absolute w-full h-full" />
+        <FlockBackground class="absolute w-full h-full min-h-full min-w-full" />
         <div class="absolute w-full h-full flex flex-col z-30 p-4 pb-16">
           <NavBar/>
           <router-view />

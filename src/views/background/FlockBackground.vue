@@ -1,5 +1,5 @@
 <template>
-  <ViewPortComponent :view="view" />
+  <ViewPortComponent v-touch:drag="onMouseMove" :view="view" />
 </template>
 
 <script lang="ts">
@@ -21,10 +21,10 @@ import { backgroundFlock } from "./background";
 @Options({
   components: {
     ViewPortComponent: ViewPortComponent,
-  },
+  }
 })
 export default class Background extends Vue {
-  drag = false;
+  isDragging = false;
   view!: View;
   flock!: Flock;
   emitter = useEmitter();
@@ -64,15 +64,55 @@ export default class Background extends Vue {
       this.addBirdToFlock({ position });
     }
     this.emitter.on("apply-flock-config", this.applyFlockConfig);
-    window.addEventListener("mousedown", () => (this.drag = true));
-    window.addEventListener("mousemove", throttle(this.onMouseMove, 10));
-    window.addEventListener("mouseup", () => (this.drag = false));
+    window.addEventListener('touchstart', throttle(this.touchDrag, 10), false);
+    window.addEventListener('touchmove', throttle(this.touchDrag, 10), false);
+    window.addEventListener("mousedown", this.dragStart, false);
+    window.addEventListener("mousemove", throttle(this.mouseDrag, 10), false);
+    window.addEventListener("mouseup", this.dragEnd, false);
+  }
+
+  // event listeners
+  dragStart() {
+    this.isDragging = true;
+  }
+
+  mouseDrag(event: MouseEvent) {
+    if (!this.isDragging || this.updating) return;
+    const halfWidth = this.flock.width / 2;
+    const halfHeight = this.flock.height / 2;
+    const normClickX = event.x / this.view.viewPort.width;
+    const normClickY = event.y / this.view.viewPort.height;
+    const position = new Vector2(
+      lerp(-halfWidth, halfWidth, normClickX),
+      lerp(-halfHeight, halfHeight, normClickY) * -1
+    );
+    this.addBirdToFlock({ position });
+  }
+
+  touchDrag(event: TouchEvent) {
+    const touch = event.touches.item(event.touches.length-1)
+    if(!touch) return
+    const halfWidth = this.flock.width / 2;
+    const halfHeight = this.flock.height / 2;
+    const normClickX = touch.clientX / this.view.viewPort.width;
+    const normClickY = touch.clientY / this.view.viewPort.height;
+    const position = new Vector2(
+      lerp(-halfWidth, halfWidth, normClickX),
+      lerp(-halfHeight, halfHeight, normClickY) * -1
+    );
+    this.addBirdToFlock({ position });
+  }
+
+  dragEnd() {
+    this.isDragging = false
   }
 
   unmounted() {
-    window.removeEventListener("mousedown", () => (this.drag = true));
-    window.removeEventListener("mousemove", throttle(this.onMouseMove, 10));
-    window.removeEventListener("mouseup", () => (this.drag = false));
+    window.addEventListener('touchstart', throttle(this.touchDrag, 10), false);
+    window.addEventListener('touchmove', throttle(this.touchDrag, 10), false);
+    window.addEventListener("mousedown", this.dragStart, false);
+    window.addEventListener("mousemove", throttle(this.mouseDrag, 10), false);
+    window.addEventListener("mouseup", this.dragEnd, false);
   }
 
   renderTickCallback(view: View) {
@@ -120,19 +160,6 @@ export default class Background extends Vue {
   removeBirdFromView(bird: Bird) {
     this.view.removeEntities(bird.line);
     bird.dispose();
-  }
-
-  onMouseMove(event: MouseEvent): void {
-    if (!this.drag || this.updating) return;
-    const halfWidth = this.flock.width / 2;
-    const halfHeight = this.flock.height / 2;
-    const normClickX = event.x / this.view.viewPort.width;
-    const normClickY = event.y / this.view.viewPort.height;
-    const position = new Vector2(
-      lerp(-halfWidth, halfWidth, normClickX),
-      lerp(-halfHeight, halfHeight, normClickY) * -1
-    );
-    this.addBirdToFlock({ position });
   }
 }
 </script>
