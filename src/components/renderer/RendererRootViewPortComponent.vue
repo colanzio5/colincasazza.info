@@ -2,7 +2,7 @@
   <div
     :ref="domCanvasId"
     :id="domCanvasId"
-    class="absolute w-full h-full min-h-full min-w-full"
+    class="fixed w-full h-full min-h-full min-w-full"
   />
 </template>
 

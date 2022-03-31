@@ -73,8 +73,8 @@ export class ViewPort extends AbstractViewPort {
 export class RendererRootViewPort extends AbstractViewPort {
 
   resize(): void {
-    this.height = window.outerHeight;
-    this.width = window.outerWidth;
+    this.height = this.container.clientHeight;
+    this.width = this.container.clientWidth;
     this.left = 0;
     this.bottom = 0;
   }

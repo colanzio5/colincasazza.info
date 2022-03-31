@@ -80,6 +80,11 @@ export default class Projects extends Vue {
           heading: "waves on a plane",
           text: "simple morphing a plane",
           link: "/debug/waves"
+        },
+        {
+          heading: "rusty flock",
+          text: "rust backend for flocking algorithm",
+          link: "/debug/rusty-flock"
         }
       ],
     } : null),

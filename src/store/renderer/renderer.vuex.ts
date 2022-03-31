@@ -27,7 +27,7 @@ export default class RendererStore extends VuexModule {
       vxm.renderer.stats.dom
     );
     vxm.renderer.stats.domElement.style.cssText =
-      "position:absolute;bottom:5px;right:5px;cursor:pointer;z-index:999;";
+      "position:absolute;bottom:5px;right:5px;cursor:pointer;z-index:999;maxWidth:45%";
     props.container.appendChild(vxm.renderer.renderer.domElement);
     vxm.renderer.resize();
   }
@@ -39,8 +39,8 @@ export default class RendererStore extends VuexModule {
     vxm.renderer.renderer.setSize(width, height, true);
     // finally resize all the views
     vxm.renderer.views.forEach((view) => {
-      view.viewPort.resize();
       view.camera.aspect = vxm.renderer.rendererRootViewPort.aspect;
+      view.viewPort.resize();
     });
   }
 
@@ -132,7 +132,7 @@ export default class RendererStore extends VuexModule {
     this.renderer.setViewport(left, bottom, width, height);
     this.renderer.setScissor(left, bottom, width, height);
     this.renderer.setScissorTest(true);
-    this.renderer.setClearColor(view.background);
+    // this.renderer.setClearColor(view.background);
     this.renderer.render(toRaw(view.scene), view.camera);
     view.camera.updateProjectionMatrix();
     view.controls.update();

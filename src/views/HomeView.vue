@@ -22,7 +22,6 @@
 
     <div class="text-4xl text-secondary-200">experience</div>
     <div class="text-xl mb-4">
-      
       <div class="text-highlight-100 text-lg">qualcomm</div>
       <div class="text-lg pb-1">
         october 2021 - current - cloud tools software engineer
@@ -55,10 +54,8 @@
         sep 2015 - dec 2019 - bachelor’s degree in computer science
       </div>
     </div>
-  </div>
-  <div class="absolute bottom-4 left-4">
     <router-link class="select-text cursor-pointer" to="/projects/three/flock">
-      <div class="link text-lg">like the background? click here</div>
+      <div class="link text-xs">like the background? click here</div>
     </router-link>
   </div>
 </template>

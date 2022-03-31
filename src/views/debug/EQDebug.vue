@@ -1,25 +1,50 @@
 <template>
-  <ViewPortComponent class="w-full h-full" :view="view" />
+  <ViewPortComponent @click="load" class="w-full h-full" :view="view" />
 </template>
 
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
 import { View } from "@/lib/renderer/view";
-import themeColors from "@/styles/themeColors";
+import { vxm } from "@/store";
 import {
-  BufferAttribute,
+  AudioAnalyser,
+  AudioListener,
+  AudioLoader,
   Color,
+  DataTexture,
+  LuminanceFormat,
   Mesh,
-  MeshBasicMaterial,
   PlaneGeometry,
+  RedFormat,
+  ShaderMaterial,
   Vector3,
 } from "three";
-import { Options, Vue } from "vue-class-component";
 
-const GRID_HEIGHT = 100,
-  GRID_WIDTH = 100,
-  GRID_W_DIVISIONS = 3,
-  GRID_H_DIVISIONS = 6;
+import * as THREE from "three";
+import { Options, Vue } from "vue-class-component";
+import themeColors from "@/styles/themeColors";
+
+const vertexShader = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4( position, 1.0 );
+}
+`;
+
+const backgroundColorString = new Color("black").toArray().join(", ")
+const colorString = new Color(themeColors.primary["100"]).toArray().join(", ")
+const fragmentShader = `
+uniform sampler2D tAudioData;
+varying vec2 vUv;
+void main() {
+  vec3 backgroundColor = vec3( ${backgroundColorString} );
+  vec3 color = vec3( ${colorString} );
+  float f = texture2D( tAudioData, vec2( vUv.x, 0.0 ) ).r;
+  float i = step( vUv.y, f ) * step( f - 0.001, vUv.y );
+  gl_FragColor = vec4( mix( backgroundColor, color, i ), 1.0 );
+}
+`;
 
 @Options({
   components: {
@@ -28,14 +53,27 @@ const GRID_HEIGHT = 100,
 })
 export default class EQDebug extends Vue {
   view!: View;
-  geometry!: PlaneGeometry;
-  material!: MeshBasicMaterial;
-  plane!: Mesh;
+  // geometry!: PlaneGeometry;
+  // material!: MeshBasicMaterial;
+  // plane!: Mesh;
   scrollIdx = 0;
   throttle = 0;
   last: number = 0;
-  hz: number = 1
+  hz: number = 1;
   inc: number = 5;
+
+  // audio anayzer
+  analyser: any;
+  uniforms: any;
+  renderer: any;
+  fftSize: number = 128;
+  listener!: AudioListener;
+  audio!: THREE.Audio;
+  geometry!: PlaneGeometry;
+  material!: ShaderMaterial;
+  plane!: Mesh<any, any>;
+  mesh!: Mesh<any, any>;
+  loaded = false;
 
   created(): void {
     this.view = new View({
@@ -54,53 +92,53 @@ export default class EQDebug extends Vue {
       id: "PLANET_DEBUG_VIEW",
       background: new Color("black"),
     });
-    const options = [
-      GRID_WIDTH,
-      GRID_HEIGHT,
-      GRID_W_DIVISIONS,
-      GRID_H_DIVISIONS,
-    ];
-    this.geometry = new PlaneGeometry(...options);
-    this.material = new MeshBasicMaterial({
-      color: themeColors.primary["500"],
-      wireframe: true,
-    });
-    this.plane = new Mesh(this.geometry, this.material);
-    this.plane.rotateX(-70 * (Math.PI / 180));
-    this.geometry.center();
   }
 
-  mounted(): void {
-    this.view.scene.add(this.plane);
+  async load() {
+    if (this.loaded) return;
+    // audio analyzer setup
+    this.listener = new AudioListener();
+    this.audio = new THREE.Audio(this.listener);
+    const file = "/sounds/XXYYXX - Closer.mp3";
+    if (/(iPad|iPhone|iPod)/g.test(navigator.userAgent)) {
+      const loader = new AudioLoader();
+      const buffer = await loader.loadAsync(file);
+      this.audio.setBuffer(buffer);
+      this.audio.play();
+    } else {
+      const mediaElement = new Audio(file);
+      mediaElement.play();
+      this.audio.setMediaElementSource(mediaElement);
+    }
+    this.analyser = new AudioAnalyser(this.audio, this.fftSize);
+    // eq shader setup
+    const format = vxm.renderer.renderer.capabilities.isWebGL2
+      ? RedFormat
+      : LuminanceFormat;
+    this.uniforms = {
+      tAudioData: {
+        value: new DataTexture(this.analyser.data, this.fftSize / 2, 1, format),
+      },
+    };
+    this.material = new ShaderMaterial({
+      uniforms: this.uniforms,
+      vertexShader,
+      fragmentShader,
+    });
+    this.geometry = new PlaneGeometry(1, 1);
+    this.mesh = new Mesh(this.geometry, this.material);
+    this.view.scene.add(this.mesh);
+    this.loaded = true;
   }
 
   unmounted(): void {
-    this.view.scene.add(this.plane);
+    this.view.scene.remove(this.mesh);
   }
 
   renderTickCallback(view: View, timeStepMS: number): void {
-    const current = this.geometry.getAttribute("position");
-    if (!current) return;
-    if ((this.last += timeStepMS) < 1/(this.hz+=0.001)) return;
-    this.last = 0;
-    const next = Float32Array.from(current.array);
-    const row = this.scrollIdx++ % (GRID_H_DIVISIONS + 1);
-    const itemsPerRow = GRID_W_DIVISIONS + 1;
-    const start = row * itemsPerRow;
-    const end = start + itemsPerRow - 1;
-    for (let i = start; i <= end; i++) {
-      next[i * current.itemSize + 2] = next[i * current.itemSize + 2] + this.inc;
-    }
-    const prevRow = row - 1 == -1 ? GRID_H_DIVISIONS : row - 1;
-    const prevStart = prevRow * itemsPerRow;
-    const prevEnd = prevStart + itemsPerRow - 1;
-    for (let i = prevStart; i <= prevEnd; i++) {
-      next[i * current.itemSize + 2] = 0;
-    }
-    this.geometry.setAttribute(
-      "position",
-      new BufferAttribute(next, current.itemSize)
-    );
+    if (!this.analyser || !this.uniforms) return;
+    this.analyser.getFrequencyData();
+    this.uniforms.tAudioData.value.needsUpdate = true;
   }
 }
 </script>

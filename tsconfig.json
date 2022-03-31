@@ -12,8 +12,8 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
+      "wasm-lib": ["./wasm-lib/pkg"],
       "@/*": ["./src/*"],
-      // "three/examples/jsm/libs/dat.gui.module": ["node_modules/@types/dat.gui"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },

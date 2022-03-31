@@ -41,8 +41,9 @@ export default class BackgroundDebug extends Vue {
     this.container.appendChild(this.gui.domElement);
     this.gui.domElement.id = "gui";
     this.gui.domElement.style.overflowY = "scroll";
-    this.gui.domElement.style.position = "absolute";
+    this.gui.domElement.style.position = "fixed";
     this.gui.domElement.style.maxHeight = "40%";
+    this.gui.domElement.style.maxWidth = "60%";
     this.gui.domElement.style.left = "0px";
     this.gui.domElement.style.bottom = "0px";
     this.gui.domElement.style.zIndex = "9999";

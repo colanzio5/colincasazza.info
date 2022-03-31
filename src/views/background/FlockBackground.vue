@@ -1,5 +1,5 @@
 <template>
-  <ViewPortComponent v-touch:drag="onMouseMove" :view="view" />
+  <ViewPortComponent :view="view" />
 </template>
 
 <script lang="ts">
@@ -17,6 +17,7 @@ import { Color, Vector2, Vector3 } from "three";
 import { lerp } from "three/src/math/MathUtils";
 import { Options, Vue } from "vue-class-component";
 import { backgroundFlock } from "./background";
+
 
 @Options({
   components: {
