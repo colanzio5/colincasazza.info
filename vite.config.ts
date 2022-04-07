@@ -11,11 +11,18 @@ function CustomHmr() {
     handleHotUpdate({ file, server }) {
       if (
         file.endsWith(".json") ||
+        file.endsWith(".yaml") ||
         file.endsWith(".ts") ||
         file.endsWith(".d.ts") ||
         file.endsWith(".rs") ||
         file.endsWith(".js")
       ) {
+        // const { execSync } = require("child_process");
+        // execSync("npm run build:wasm").catch((e) => {
+        //   throw new Error(
+        //     "make sure wasm/wasm-pack are installed. see wasm-lib/readme.md for details."
+        //   );
+        // });
         server.ws.send({
           type: "full-reload",
           path: "*",
@@ -38,5 +45,9 @@ export default defineConfig({
   build: {
     target: "esnext",
   },
-  plugins: [vue(), wasmPack("wasm-lib/"), CustomHmr()],
+  plugins: [
+    vue(),
+    wasmPack("wasm-lib/"),
+    //CustomHmr()
+  ],
 });

@@ -21,6 +21,10 @@ import { toRaw } from "vue";
 import { Options, Vue } from "vue-class-component";
 import { BirdConfig, Flock } from "wasm-lib";
 
+const BIRD_SIZE = 25;
+const STARTING_FLOCK_SIZE = 100;
+const MAX_FLOCK_SIZE = 100;
+
 interface IBirdConfig {
   neighbor_distance: number;
   desired_separation: number;
@@ -63,21 +67,19 @@ export default class RustyFlock extends Vue {
       background: new Color("black"),
       renderTickCallback: this.renderTickCallback,
     });
-
     this.birdsGeometry = new BufferGeometry();
     this.birdsMaterial = new LineBasicMaterial({
       color: themeColors.primary[100],
     });
     this.birdsLine = new LineSegments(this.birdsGeometry, this.birdsMaterial);
     this.view.scene.add(this.birdsLine);
-    this.flock = Flock.new(10000);
+    this.flock = Flock.new(MAX_FLOCK_SIZE);
   }
 
   mounted() {
-    const BIRD_SIZE = 5;
     const defaultBirdConfigParams: IBirdConfig = {
-      neighbor_distance: 100,
-      desired_separation: 1,
+      neighbor_distance: 10,
+      desired_separation: 100,
       separation_multiplier: 0.9,
       alignment_multiplier: 0.9,
       cohesion_multiplier: 0.5,
@@ -96,7 +98,7 @@ export default class RustyFlock extends Vue {
       defaultBirdConfigParams.bird_size
     );
     this.flock.add_bird_config("default_config", config);
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < STARTING_FLOCK_SIZE; i++) {
       this.addBirdToWasmFlock({
         configName: "default_config",
         birdColor: "red",
@@ -106,17 +108,15 @@ export default class RustyFlock extends Vue {
     }
   }
 
-  updateFlockVertices(vertices: number[]) {
-    // this.birdsGeometry.attributes["position"].setXYZ(index, x,y,z);
+  updateFlockVertices(vertices: Float32Array) {
     console.log(vertices);
-    this.birdsGeometry.setAttribute(
+    this.birdsLine.geometry.setAttribute(
       "position",
       new BufferAttribute(vertices, 3)
     );
   }
 
   renderTickCallback(_: View) {
-    console.log
     this.flock.update(
       this.view.visibleWidthAtZDepth,
       this.view.visibleHeightAtZDepth,
