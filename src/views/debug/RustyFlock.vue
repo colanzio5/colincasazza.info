@@ -83,8 +83,8 @@ export default class RustyFlock extends Vue {
       separation_multiplier: 0.9,
       alignment_multiplier: 0.9,
       cohesion_multiplier: 0.5,
-      max_speed: 3,
-      max_force: 0.01,
+      max_speed: 5,
+      max_force: 0.1,
       bird_size: BIRD_SIZE,
     };
     const config = BirdConfig.new(

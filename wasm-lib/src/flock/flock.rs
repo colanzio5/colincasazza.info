@@ -1,15 +1,19 @@
 use js_sys::Array;
 use nalgebra::Vector3;
+use ordered_float::OrderedFloat;
 use wasm_bindgen::{convert::FromWasmAbi, prelude::*};
 
-use std::{collections::{HashMap, VecDeque}, fmt::Result};
+use std::{
+    collections::{HashMap, VecDeque},
+    fmt::Result,
+};
 
-use super::{bird::Bird, bird_config::{BirdConfig}};
+use super::{bird::Bird, bird_config::BirdConfig};
 use crate::utils::log;
 
-const GLOBAL_MAX_FLOCK_SIZE: usize = 2500;
-const GLOBAL_VERTICES_PER_BIRD: usize = 4;
-const GLOBAL_VERTEX_BUFFER_SIZE: usize = GLOBAL_MAX_FLOCK_SIZE * GLOBAL_VERTICES_PER_BIRD * 3;
+// const GLOBAL_MAX_FLOCK_SIZE: usize = 2500;
+// const GLOBAL_VERTICES_PER_BIRD: usize = 4;
+// const GLOBAL_VERTEX_BUFFER_SIZE: usize = GLOBAL_MAX_FLOCK_SIZE * GLOBAL_VERTICES_PER_BIRD * 3;
 
 #[wasm_bindgen]
 pub struct Flock {
@@ -34,31 +38,27 @@ impl Flock {
     // the flocks entity geometry
     // given the vertices passed.
     pub fn update(&mut self, width: f32, height: f32, update_flock_vertices: &js_sys::Function) {
-
-        let current_vertices: Vec<Vector3<f32>> = self.birds
-            .clone()    
-            .iter()
+        // we need to store the current state of the flock
+        // (just position for each bird)
+        let new_flock: Vec<Bird> = self
+            .birds
+            .clone()
+            .to_vec()
+            .iter_mut()
             .map(|bird| {
-                Vector3::new(bird.position.x, bird.position.y, 0.)
+                let bird_config = self.configs.get(&bird.config_id).unwrap();
+                bird.update_bird(&self.birds, bird_config, &width, &height);
+                bird.clone()
             })
             .collect();
-        
-        // update the birds
-        for bird in self.birds.to_vec().iter_mut() {
-            let bird_config = self.configs.get(&bird.config_id).unwrap();
-            bird.update_bird(&current_vertices, &bird_config, &width, &height);
-        }
 
         // rebuild tree
-        self.birds = kd_tree::KdTree2::build_by_key(
-            self.birds.to_vec(),
-            |item, k| {
-                ordered_float::OrderedFloat(item.position[k])
-            }
-        );
+        self.birds =
+            kd_tree::KdTree2::build_by_key(new_flock, |bird, k| OrderedFloat(bird.position[k]));
 
         // collect vertices
-        let flock_vertices: Vec<f32> = self.birds
+        let flock_vertices: Vec<f32> = self
+            .birds
             .iter()
             .flat_map(|bird| {
                 let bird_config = self.configs.get(&bird.config_id).unwrap();
@@ -69,7 +69,9 @@ impl Flock {
         let js_vertices = js_sys::Float32Array::from(flock_vertices.as_slice());
         // js_vertices.copy_from(vertices);
         let e = update_flock_vertices.call1(&JsValue::null(), &js_vertices);
-        if e.is_err() { log("could not call js update vertex buffer function from rust"); }
+        if e.is_err() {
+            log("could not call js update vertex buffer function from rust");
+        }
     }
 
     pub fn add_bird_config(&mut self, config_id: String, bird_config: BirdConfig) {
@@ -105,17 +107,16 @@ impl Flock {
             acceleration,
         };
         // add bird to flock
-        let mut new_birds =self.birds.to_vec();
+        let mut new_birds = self.birds.to_vec();
         new_birds.push(new_bird);
         // if oversized remove one from front of the vector
         if self.birds.len() > usize::from(self.max_flock_size) {
             new_birds = new_birds[1..new_birds.len()].to_vec();
         }
         // rebuild tree
-        self.birds = kd_tree::KdTree2::build_by_key(
-            new_birds,
-            |item, k| ordered_float::OrderedFloat(item.position[k])
-        );
+        self.birds = kd_tree::KdTree2::build_by_key(new_birds, |bird, k| {
+            ordered_float::OrderedFloat(bird.position[k])
+        });
     }
 
     pub fn get_flock_vertices(&self) -> Vec<f32> {
