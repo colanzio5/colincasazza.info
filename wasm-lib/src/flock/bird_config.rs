@@ -1,7 +1,9 @@
+use std::string;
+
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct BirdConfig {
     pub neighbor_distance: f32,
     pub desired_separation: f32,
@@ -11,6 +13,9 @@ pub struct BirdConfig {
     pub max_speed: f32,
     pub max_force: f32,
     pub bird_size: f32,
+    pub color_r: f32,
+    pub color_b: f32,
+    pub color_g: f32,
 }
 
 #[wasm_bindgen]
@@ -24,6 +29,9 @@ impl BirdConfig {
         max_speed: f32,
         max_force: f32,
         bird_size: f32,
+        color_r: f32,
+        color_b: f32,
+        color_g: f32,
     ) -> BirdConfig {
         BirdConfig {
             neighbor_distance,
@@ -34,6 +42,9 @@ impl BirdConfig {
             max_speed,
             max_force,
             bird_size,
+            color_r,
+            color_b,
+            color_g,
         }
     }
 }

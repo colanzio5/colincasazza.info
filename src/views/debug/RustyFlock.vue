@@ -4,6 +4,8 @@
 
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
+import useEmitter from "@/emitter";
+import { IFlockConfig } from "@/lib/flock/flock";
 import { View } from "@/lib/renderer/view";
 import { randomFromRange } from "@/lib/util/random";
 import themeColors from "@/styles/themeColors";
@@ -22,8 +24,8 @@ import { Options, Vue } from "vue-class-component";
 import { BirdConfig, Flock } from "wasm-lib";
 
 const BIRD_SIZE = 25;
-const STARTING_FLOCK_SIZE = 100;
-const MAX_FLOCK_SIZE = 100;
+const STARTING_FLOCK_SIZE = 500;
+const MAX_FLOCK_SIZE = 500;
 
 interface IBirdConfig {
   neighbor_distance: number;
@@ -50,6 +52,8 @@ export default class RustyFlock extends Vue {
   birdsMaterial!: LineBasicMaterial;
   birdsLine!: LineSegments;
   set = false;
+  updating = false;
+  emitter = useEmitter();
 
   created() {
     this.view = new View({
@@ -78,14 +82,14 @@ export default class RustyFlock extends Vue {
 
   mounted() {
     const defaultBirdConfigParams: IBirdConfig = {
-      neighbor_distance: 10,
-      desired_separation: 100,
-      separation_multiplier: 0.9,
-      alignment_multiplier: 0.9,
-      cohesion_multiplier: 0.5,
-      max_speed: 5,
-      max_force: 0.1,
-      bird_size: BIRD_SIZE,
+      neighbor_distance: 200,
+      desired_separation: 60,
+      separation_multiplier: 0.5,
+      alignment_multiplier: 0.3,
+      cohesion_multiplier: 1.9,
+      max_speed: 20,
+      max_force: 1.5,
+      bird_size: 6,
     };
     const config = BirdConfig.new(
       defaultBirdConfigParams.neighbor_distance,
@@ -106,21 +110,26 @@ export default class RustyFlock extends Vue {
         birdConfig: defaultBirdConfigParams,
       });
     }
+    this.emitter.on("apply-flock-config", this.applyFlockConfig);
   }
 
-  updateFlockVertices(vertices: Float32Array) {
-    console.log(vertices);
+  updateFlockGeometry(vertices: Float32Array, colors: Float32Array) {
     this.birdsLine.geometry.setAttribute(
       "position",
       new BufferAttribute(vertices, 3)
     );
+    this.birdsLine.geometry.setAttribute(
+      "colors",
+      new BufferAttribute(colors, 3)
+    );
+    console.dir(this.birdsLine.geometry);
   }
 
   renderTickCallback(_: View) {
     this.flock.update(
       this.view.visibleWidthAtZDepth,
       this.view.visibleHeightAtZDepth,
-      this.updateFlockVertices
+      this.updateFlockGeometry
     );
   }
 
@@ -152,6 +161,13 @@ export default class RustyFlock extends Vue {
       "default_config"
     );
     return props.birdConfig;
+  }
+
+
+  applyFlockConfig(flockConfig: IFlockConfig): void {
+    this.updating = true;
+    console.log(flockConfig);
+    this.updating = false;
   }
 }
 </script>

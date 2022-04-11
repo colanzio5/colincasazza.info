@@ -4,25 +4,20 @@
 
 <script lang="ts">
 import useEmitter from "@/emitter";
-import { BirdConfig } from "@/lib/flock/bird";
-import { IFlockConfig } from "@/lib/flock/flock";
 import themeColors from "@/styles/themeColors";
 import { GUI } from "dat.gui";
 import { cloneDeep } from "lodash";
 import { Vue } from "vue-class-component";
-import { backgroundFlock } from "./background";
 
 export default class BackgroundDebug extends Vue {
   gui!: GUI;
-  flockConfig!: IFlockConfig;
   emitter = useEmitter();
 
   get container(): HTMLElement {
     return this.$refs["gui-container"] as HTMLElement;
   }
 
-  mounted() {
-    this.flockConfig = cloneDeep({ ...backgroundFlock.flockConfig });
+  mounted() {;
     this.initGui();
   }
 
