@@ -37,7 +37,20 @@ impl Flock {
     // js closure passed in should update
     // the flocks entity geometry
     // given the vertices passed.
-    pub fn update(&mut self, width: f32, height: f32, update_flock_geometry: &js_sys::Function) {
+    pub fn update(&mut self, width: f32, height: f32, time_step: f32, update_flock_geometry: &js_sys::Function) {
+        // we need to store the current state of the flock
+        // (just position for each bird)
+        let new_flock: Vec<Bird> = self
+            .birds
+            .clone()
+            .to_vec()
+            .iter_mut()
+            .map(|bird| {
+                let bird_config = self.configs.get(&bird.config_id).unwrap();
+                bird.update_bird(&self.birds, bird_config, &width, &height, &time_step);
+                bird.clone()
+            })
+            .collect();
 
 
         // collect vertices and colors

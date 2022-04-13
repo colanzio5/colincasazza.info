@@ -45,30 +45,35 @@ const MAX_FLOCK_SIZE = 1000;
 
 const birdConfigs: IWeightedArray<IBirdConfig> = [
   {
-    id: "black_sheep",
-    probability: 1 / 100,
-    neighborDistance: 100,
-    separationMultiplier: 0.0,
-    alignmentMultiplier: 0.0,
-    cohesionMultiplier: 0.0,
-    maxSpeed: 4,
-    maxForce: 0.3,
-    birdSize: 15,
-    birdColor: themeColors.primary[200],
-  },
-  {
     id: "default",
     probability: -1,
-    neighborDistance: 100,
-    separationMultiplier: 0.0,
-    alignmentMultiplier: 0.0,
-    cohesionMultiplier: 0.0,
+    neighborDistance: 25,
+    desiredSeparation: 30,
+    separationMultiplier: 0.4,
+    alignmentMultiplier: 0.3,
+    cohesionMultiplier: 0.3,
     maxSpeed: 2,
-    maxForce: 0.3,
+    maxForce: 0.05,
     birdSize: 5,
     birdColor: themeColors.secondary[200],
   },
+  {
+    id: "black_sheep",
+    probability: 1 / 100,
+    neighborDistance: 25,
+    desiredSeparation: 30,
+    separationMultiplier: 0.4,
+    alignmentMultiplier: 0.3,
+    cohesionMultiplier: 0.3,
+    maxSpeed: 2,
+    maxForce: 0.05,
+    birdSize: 5,
+    birdColor: themeColors.highlight[100],
+  },
 ];
+
+
+
 
 @Options({
   components: {
@@ -157,6 +162,7 @@ export default class Background extends Vue {
     this.flock.update(
       this.view.visibleWidthAtZDepth,
       this.view.visibleHeightAtZDepth,
+      1.0,
       this.updateFlockGeometry
     );
   }
