@@ -6,7 +6,6 @@ use wasm_bindgen::prelude::*;
 #[derive(Clone)]
 pub struct BirdConfig {
     pub neighbor_distance: f32,
-    pub desired_separation: f32,
     pub separation_multiplier: f32,
     pub alignment_multiplier: f32,
     pub cohesion_multiplier: f32,
@@ -14,15 +13,14 @@ pub struct BirdConfig {
     pub max_force: f32,
     pub bird_size: f32,
     pub color_r: f32,
-    pub color_b: f32,
     pub color_g: f32,
+    pub color_b: f32,
 }
 
 #[wasm_bindgen]
 impl BirdConfig {
     pub fn new(
         neighbor_distance: f32,
-        desired_separation: f32,
         separation_multiplier: f32,
         alignment_multiplier: f32,
         cohesion_multiplier: f32,
@@ -30,12 +28,11 @@ impl BirdConfig {
         max_force: f32,
         bird_size: f32,
         color_r: f32,
-        color_b: f32,
         color_g: f32,
+        color_b: f32,
     ) -> BirdConfig {
         BirdConfig {
             neighbor_distance,
-            desired_separation,
             separation_multiplier,
             alignment_multiplier,
             cohesion_multiplier,
@@ -43,8 +40,8 @@ impl BirdConfig {
             max_force,
             bird_size,
             color_r,
-            color_b,
             color_g,
+            color_b,
         }
     }
 }

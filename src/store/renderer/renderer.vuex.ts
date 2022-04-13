@@ -33,6 +33,7 @@ export default class RendererStore extends VuexModule {
   }
 
   @mutation resize(): void {
+    console.log("resizing")
     vxm.renderer.rendererRootViewPort.resize();
     // first resize the renderer root viewport
     const { width, height } = vxm.renderer.rendererRootViewPort;
@@ -89,12 +90,12 @@ export default class RendererStore extends VuexModule {
     vxm.renderer.renderLoop.stop = true;
   }
 
-  @action async start(): Promise<void> {
+  @mutation start(): void {
     vxm.renderer.renderLoop.stop = false;
     vxm.renderer.animate();
   }
 
-  @action async animate(): Promise<void> {
+  @mutation animate(): void {
     // the animation loop calculates time elapsed since the last loop
     // and only draws if your specified fps interval is achieved
     // request another frame
@@ -116,7 +117,6 @@ export default class RendererStore extends VuexModule {
 
       const timeStepMS = vxm.renderer.renderLoop.elapsed / 1000;
       // render each view
-      vxm.renderer.resize()
       vxm.renderer.views.forEach((view) =>
         vxm.renderer.renderView({ view, timeStepMS })
       );

@@ -1,7 +1,7 @@
 use js_sys::Array;
 use nalgebra::Vector3;
 use ordered_float::OrderedFloat;
-use wasm_bindgen::{convert::FromWasmAbi, prelude::*};
+use wasm_bindgen::{convert::FromWasmAbi, prelude::*, throw_str};
 
 use std::{
     collections::{HashMap, VecDeque},
@@ -38,23 +38,7 @@ impl Flock {
     // the flocks entity geometry
     // given the vertices passed.
     pub fn update(&mut self, width: f32, height: f32, update_flock_geometry: &js_sys::Function) {
-        // we need to store the current state of the flock
-        // (just position for each bird)
-        let new_flock: Vec<Bird> = self
-            .birds
-            .clone()
-            .to_vec()
-            .iter_mut()
-            .map(|bird| {
-                let bird_config = self.configs.get(&bird.config_id).unwrap();
-                bird.update_bird(&self.birds, bird_config, &width, &height, &0.3f32);
-                bird.clone()
-            })
-            .collect();
 
-        // rebuild tree
-        self.birds =
-            kd_tree::KdTree2::build_by_key(new_flock, |bird, k| OrderedFloat(bird.position[k]));
 
         // collect vertices and colors
         let mut vertices: Vec<f32> = Vec::new();
@@ -78,10 +62,42 @@ impl Flock {
         if e.is_err() {
             log("could not call js update vertex buffer function from rust");
         }
+
+        // we need to store the current state of the flock
+        // (just position for each bird)
+        let new_flock: Vec<Bird> = self
+            .birds
+            .clone()
+            .to_vec()
+            .iter_mut()
+            .map(|bird| {
+                let bird_config = self.configs.get(&bird.config_id).unwrap();
+                bird.update_bird(&self.birds, bird_config, &width, &height, &1f32);
+                bird.clone()
+            })
+            .collect();
+
+        // rebuild tree
+        self.birds =
+            kd_tree::KdTree2::build_by_key(new_flock, |bird, k| OrderedFloat(bird.position[k]));
+
     }
 
     pub fn add_bird_config(&mut self, config_id: String, bird_config: BirdConfig) {
         self.configs.insert(config_id, bird_config);
+    }
+
+    pub fn update_bird_config(&mut self, config_id: String, updated_bird_config: BirdConfig) {
+        self.configs.remove(&config_id)
+            .unwrap_or_else(|| {
+                let err = format!(
+                    "cannot update bird config, existing config with id {} does not exist.",
+                    config_id
+                );
+            throw_str(&err);
+            });
+
+        self.add_bird_config(config_id, updated_bird_config);
     }
 
     pub fn remove_bird_config(&mut self, config_id: String) {
@@ -105,7 +121,7 @@ impl Flock {
                 config_id
             );
             log(&err);
-            return;
+            throw_str(&err);
         }
         let position = Vector3::new(entity_pos_x, entity_pos_y, 0.);
         let velocity = Vector3::new(vel_x, vel_y, 0.);

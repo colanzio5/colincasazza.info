@@ -38,8 +38,8 @@ export default class App extends Vue {
     return vxm.renderer.rendererRootViewPort.isMounted;
   }
 
-  async mounted(): Promise<void> {
-    await vxm.renderer.start();
+   mounted(): void {
+    vxm.renderer.start();
   }
 }
 </script>

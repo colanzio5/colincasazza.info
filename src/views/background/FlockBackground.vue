@@ -31,7 +31,6 @@ interface IBirdConfig {
   id: string;
   probability: number;
   neighborDistance: number;
-  desiredSeparation: number;
   separationMultiplier: number;
   alignmentMultiplier: number;
   cohesionMultiplier: number;
@@ -41,35 +40,33 @@ interface IBirdConfig {
   birdColor: ColorRepresentation;
 }
 
-const STARTING_FLOCK_SIZE = 500;
-const MAX_FLOCK_SIZE = 500;
+const STARTING_FLOCK_SIZE = 1000;
+const MAX_FLOCK_SIZE = 1000;
 
 const birdConfigs: IWeightedArray<IBirdConfig> = [
+  {
+    id: "black_sheep",
+    probability: 1 / 100,
+    neighborDistance: 100,
+    separationMultiplier: 0.0,
+    alignmentMultiplier: 0.0,
+    cohesionMultiplier: 0.0,
+    maxSpeed: 4,
+    maxForce: 0.3,
+    birdSize: 15,
+    birdColor: themeColors.primary[200],
+  },
   {
     id: "default",
     probability: -1,
     neighborDistance: 100,
-    desiredSeparation: 20,
-    separationMultiplier: 0.5,
-    alignmentMultiplier: 0.3,
-    cohesionMultiplier: 1.9,
-    maxSpeed: 15,
-    maxForce: 1.5,
-    birdSize: 6,
-    birdColor: themeColors.secondary[100],
-  },
-  {
-    id: "black_sheep",
-    probability: 0.01,
-    neighborDistance: 300,
-    desiredSeparation: 80,
-    separationMultiplier: 1.7,
-    alignmentMultiplier: 2.3,
-    cohesionMultiplier: 1.9,
-    maxSpeed: 20,
-    maxForce: 8,
-    birdSize: 10,
-    birdColor: themeColors.highlight[100],
+    separationMultiplier: 0.0,
+    alignmentMultiplier: 0.0,
+    cohesionMultiplier: 0.0,
+    maxSpeed: 2,
+    maxForce: 0.3,
+    birdSize: 5,
+    birdColor: themeColors.secondary[200],
   },
 ];
 
@@ -109,7 +106,7 @@ export default class Background extends Vue {
     });
     this.birdsGeometry = new BufferGeometry();
     this.birdsMaterial = new LineBasicMaterial({
-      vertexColors: true
+      vertexColors: true,
     });
     this.birdsLine = new LineSegments(this.birdsGeometry, this.birdsMaterial);
     this.view.scene.add(this.birdsLine);
@@ -123,7 +120,6 @@ export default class Background extends Vue {
     // add birds to flock
     for (let i = 0; i < STARTING_FLOCK_SIZE; i++) {
       let config = selectRandomFromWeightedArray(this.birdConfigs);
-      console.log(config.id);
       this.addBirdToWasmFlock({
         configId: config.id,
       });
@@ -138,7 +134,7 @@ export default class Background extends Vue {
     window.addEventListener("mouseup", this.dragEnd, false);
   }
 
-    unmounted() {
+  unmounted() {
     window.addEventListener("touchstart", throttle(this.touchDrag, 10), false);
     window.addEventListener("touchmove", throttle(this.touchDrag, 10), false);
     window.addEventListener("mousedown", this.dragStart, false);
@@ -167,16 +163,14 @@ export default class Background extends Vue {
 
   // applies the new
   applyFlockConfig(flockConfig: any): void {
-    this.updating = true; 
+    this.updating = true;
     this.updating = false;
   }
 
   addBirdConfig(birdConfig: IBirdConfig, id: string = generateUUID()) {
     const color = new Color(birdConfig.birdColor);
-    console.log(color.r, color.g, color.b);
     const config = BirdConfig.new(
       birdConfig.neighborDistance,
-      birdConfig.desiredSeparation,
       birdConfig.separationMultiplier,
       birdConfig.alignmentMultiplier,
       birdConfig.cohesionMultiplier,
@@ -188,6 +182,23 @@ export default class Background extends Vue {
       color.b
     );
     this.flock.add_bird_config(id, config);
+  }
+
+  updateBirdConfig(configId: string, updateBirdConfig: IBirdConfig) {
+    const color = new Color(updateBirdConfig.birdColor);
+    const config = BirdConfig.new(
+      updateBirdConfig.neighborDistance,
+      updateBirdConfig.separationMultiplier,
+      updateBirdConfig.alignmentMultiplier,
+      updateBirdConfig.cohesionMultiplier,
+      updateBirdConfig.maxSpeed,
+      updateBirdConfig.maxForce,
+      updateBirdConfig.birdSize,
+      color.r,
+      color.g,
+      color.b
+    );
+    this.flock.update_bird_config(configId, config);
   }
 
   removeBirdConfig(id: string) {
@@ -233,7 +244,7 @@ export default class Background extends Vue {
       lerp(-halfWidth, halfWidth, normClickX),
       lerp(-halfHeight, halfHeight, normClickY) * -1
     );
-    this.addBirdToWasmFlock({ configId: "default_id" });
+    this.addBirdToWasmFlock({ configId: "default" });
   }
 
   touchDrag(event: TouchEvent) {
@@ -247,13 +258,11 @@ export default class Background extends Vue {
       lerp(-halfWidth, halfWidth, normClickX),
       lerp(-halfHeight, halfHeight, normClickY) * -1
     );
-    this.addBirdToWasmFlock({ configId: "default_id" });
+    this.addBirdToWasmFlock({ configId: "default" });
   }
 
   dragEnd() {
     this.isDragging = false;
   }
-
-
 }
 </script>
