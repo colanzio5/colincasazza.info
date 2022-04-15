@@ -1,6 +1,6 @@
 use std::ops::{MulAssign, Neg};
 
-use nalgebra::{clamp, Vector3, AbstractRotation};
+use nalgebra::{clamp, Vector3, AbstractRotation, Vector2};
 use typenum::private::Invert;
 use wasm_bindgen::prelude::*;
 
@@ -33,12 +33,18 @@ extern "C" {
     pub fn log_many(a: &str, b: &str);
 }
 
-pub fn clamp_magnitude(vector: &mut Vector3<f32>, max: f32) {
-    if vector.magnitude().is_normal(){ 
-        vector.normalize_mut();
-        *vector *= vector.magnitude().clamp(-max, max);
-    }
+pub fn clamp_magnitude(vector: &mut Vector2<f32>, max: f32) {
+    let length = vector.magnitude();
+    *vector /= length;
+    *vector *=  length.min(max).max(-max);
 }
+
+// pub fn clamp_magnitude(vector: &mut Vector2<f32>, max: f32) {
+//     if vector.magnitude().is_normal(){ 
+//         vector.normalize_mut();
+//         *vector *= vector.magnitude().clamp(-max, max);
+//     }
+// }
 
 pub fn nearly_equal( a: f32,  b: f32,  epsilon: f32) -> bool {
     let abs_a = (a).abs();

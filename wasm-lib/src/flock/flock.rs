@@ -1,5 +1,5 @@
 use js_sys::Array;
-use nalgebra::Vector3;
+use nalgebra::{Vector3, Vector2};
 use ordered_float::OrderedFloat;
 use wasm_bindgen::{convert::FromWasmAbi, prelude::*, throw_str};
 
@@ -38,20 +38,6 @@ impl Flock {
     // the flocks entity geometry
     // given the vertices passed.
     pub fn update(&mut self, width: f32, height: f32, time_step: f32, update_flock_geometry: &js_sys::Function) {
-        // we need to store the current state of the flock
-        // (just position for each bird)
-        let new_flock: Vec<Bird> = self
-            .birds
-            .clone()
-            .to_vec()
-            .iter_mut()
-            .map(|bird| {
-                let bird_config = self.configs.get(&bird.config_id).unwrap();
-                bird.update_bird(&self.birds, bird_config, &width, &height, &time_step);
-                bird.clone()
-            })
-            .collect();
-
 
         // collect vertices and colors
         let mut vertices: Vec<f32> = Vec::new();
@@ -62,7 +48,7 @@ impl Flock {
             for vertex in bird.get_vertices(bird_config) {
                 vertices.push(vertex.x);
                 vertices.push(vertex.y);
-                vertices.push(vertex.z);
+                vertices.push(0.);
                 colors.push(bird_config.color_r);
                 colors.push(bird_config.color_g);
                 colors.push(bird_config.color_b);
@@ -85,7 +71,7 @@ impl Flock {
             .iter_mut()
             .map(|bird| {
                 let bird_config = self.configs.get(&bird.config_id).unwrap();
-                bird.update_bird(&self.birds, bird_config, &width, &height, &1f32);
+                bird.update_bird(&self.birds, bird_config, &width, &height, &time_step);
                 bird.clone()
             })
             .collect();
@@ -136,9 +122,9 @@ impl Flock {
             log(&err);
             throw_str(&err);
         }
-        let position = Vector3::new(entity_pos_x, entity_pos_y, 0.);
-        let velocity = Vector3::new(vel_x, vel_y, 0.);
-        let acceleration = Vector3::new(acc_x, acc_y, 0.);
+        let position = Vector2::new(entity_pos_x, entity_pos_y);
+        let velocity = Vector2::new(vel_x, vel_y);
+        let acceleration = Vector2::new(acc_x, acc_y);
         let new_bird = Bird {
             config_id,
             position,

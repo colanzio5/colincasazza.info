@@ -31,6 +31,7 @@ interface IBirdConfig {
   id: string;
   probability: number;
   neighborDistance: number;
+  desiredSeparation: number;
   separationMultiplier: number;
   alignmentMultiplier: number;
   cohesionMultiplier: number;
@@ -40,40 +41,37 @@ interface IBirdConfig {
   birdColor: ColorRepresentation;
 }
 
-const STARTING_FLOCK_SIZE = 1000;
-const MAX_FLOCK_SIZE = 1000;
+const STARTING_FLOCK_SIZE = 4000;
+const MAX_FLOCK_SIZE = 4000;
 
 const birdConfigs: IWeightedArray<IBirdConfig> = [
   {
     id: "default",
     probability: -1,
-    neighborDistance: 25,
-    desiredSeparation: 30,
-    separationMultiplier: 0.4,
+    neighborDistance: 200,
+    desiredSeparation: 75,
+    separationMultiplier: 0.5,
     alignmentMultiplier: 0.3,
     cohesionMultiplier: 0.3,
-    maxSpeed: 2,
-    maxForce: 0.05,
+    maxSpeed: 3,
+    maxForce: 0.03,
     birdSize: 5,
     birdColor: themeColors.secondary[200],
   },
   {
     id: "black_sheep",
-    probability: 1 / 100,
-    neighborDistance: 25,
-    desiredSeparation: 30,
-    separationMultiplier: 0.4,
+    probability: 1 / 1000,
+    neighborDistance: 200,
+    desiredSeparation: 75,
+    separationMultiplier: 0.5,
     alignmentMultiplier: 0.3,
     cohesionMultiplier: 0.3,
-    maxSpeed: 2,
-    maxForce: 0.05,
-    birdSize: 5,
-    birdColor: themeColors.highlight[100],
+    maxSpeed: 3,
+    maxForce: 0.03,
+    birdSize: 10,
+    birdColor: themeColors.primary[200],
   },
 ];
-
-
-
 
 @Options({
   components: {
@@ -162,7 +160,7 @@ export default class Background extends Vue {
     this.flock.update(
       this.view.visibleWidthAtZDepth,
       this.view.visibleHeightAtZDepth,
-      1.0,
+      1.,
       this.updateFlockGeometry
     );
   }
@@ -177,6 +175,7 @@ export default class Background extends Vue {
     const color = new Color(birdConfig.birdColor);
     const config = BirdConfig.new(
       birdConfig.neighborDistance,
+      birdConfig.desiredSeparation,
       birdConfig.separationMultiplier,
       birdConfig.alignmentMultiplier,
       birdConfig.cohesionMultiplier,
@@ -194,6 +193,7 @@ export default class Background extends Vue {
     const color = new Color(updateBirdConfig.birdColor);
     const config = BirdConfig.new(
       updateBirdConfig.neighborDistance,
+      updateBirdConfig.desiredSeparation,
       updateBirdConfig.separationMultiplier,
       updateBirdConfig.alignmentMultiplier,
       updateBirdConfig.cohesionMultiplier,
