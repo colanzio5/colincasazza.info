@@ -9,7 +9,6 @@ import CameraDemo from "@/views/projects/three/CameraDemo.vue";
 import NBody from "@/views/projects/three/NBody.vue";
 import WavesOnAPlaneGeometry from "@/views/debug/WavesOnAPlaneGeometry.vue";
 import EQDebug from "@/views/debug/EQDebug.vue";
-import RustyFlock from "@/views/debug/RustyFlock.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -55,10 +54,6 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/debug/eq",
     component: EQDebug,
-  },
-  {
-    path: "/debug/rusty-flock",
-    component: RustyFlock,
   },
 ];
 

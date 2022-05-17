@@ -4,10 +4,10 @@
 
 <script lang="ts">
 import useEmitter from "@/emitter";
-import themeColors from "@/styles/themeColors";
 import { GUI } from "dat.gui";
-import { cloneDeep } from "lodash";
 import { Vue } from "vue-class-component";
+import FlockBackground from "./FlockBackground.vue"
+
 
 export default class BackgroundDebug extends Vue {
   gui!: GUI;
@@ -15,6 +15,10 @@ export default class BackgroundDebug extends Vue {
 
   get container(): HTMLElement {
     return this.$refs["gui-container"] as HTMLElement;
+  }
+
+  get flockBackgroundComponent(): FlockBackground {
+    return (this.$root?.$refs as any) as FlockBackground;
   }
 
   mounted() {;
@@ -43,6 +47,8 @@ export default class BackgroundDebug extends Vue {
     this.gui.domElement.style.bottom = "0px";
     this.gui.domElement.style.zIndex = "9999";
     const globals = this.gui.addFolder("globals");
+
+
     // globals
     //   .add(this.flockConfig, "maxFlockSize", 0)
     //   .onFinishChange(this.applyChanges);
@@ -118,6 +124,8 @@ export default class BackgroundDebug extends Vue {
     //     probability: 0.0,
     //   })
     // );
+
+
     this.initGui();
   }
 

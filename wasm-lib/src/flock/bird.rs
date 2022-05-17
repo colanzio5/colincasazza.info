@@ -1,13 +1,8 @@
-use core::num;
 use kd_tree::{KdPoint, KdTree2};
-use nalgebra::{Matrix2, Matrix3, Vector2};
-use ordered_float::Float;
-use std::{f32::consts::PI, ops::Mul};
+use nalgebra::{AbstractRotation, Matrix2, Vector2};
+use std::f32::consts::PI;
 
-use crate::{
-    flock::bird,
-    utils::{clamp_magnitude, nearly_equal},
-};
+use crate::utils::{clamp_magnitude, log};
 
 use super::bird_config::BirdConfig;
 
@@ -36,22 +31,32 @@ impl Bird {
         height: &f32,
         time_step: &f32,
     ) {
-        self.borders(bird_config, width, height);
-        self.seperate(birds, bird_config);
-        self.align(birds, bird_config);
-        self.cohesion(birds, bird_config);
+        // update flock forces
+        let birds_to_follow = birds.within_radius(self, bird_config.neighbor_distance);
+        let birds_to_avoid = birds.within_radius(self, bird_config.desired_separation);
+        let sep = self.seperate(birds_to_avoid, bird_config) * bird_config.separation_multiplier;
+        let ali =
+            self.align(birds_to_follow.to_owned(), bird_config) * bird_config.alignment_multiplier;
+        let coh = self.cohesion(birds_to_follow.to_owned(), bird_config)
+            * bird_config.cohesion_multiplier;
 
+        self.acceleration += sep;
+        self.acceleration += ali;
+        self.acceleration += coh;
+
+        // physics update
         clamp_magnitude(&mut self.acceleration, bird_config.max_force);
-        self.velocity += 0.5 * (self.acceleration * (time_step * time_step));
+        self.velocity += 0.5 * (self.acceleration * (time_step * *time_step));
         clamp_magnitude(&mut self.velocity, bird_config.max_speed);
         self.position += *time_step * self.velocity;
 
-        self.acceleration = Vector2::new(0., 0.);
+        // wrap birds around borders
+        self.borders(bird_config, width, height);
     }
 
     fn borders(&mut self, bird_config: &BirdConfig, width: &f32, height: &f32) {
-        let half_width = width / 2.;
-        let half_height = height / 2.;
+        let half_width = (width * 1.1) / 2.;
+        let half_height = (height * 1.1) / 2.;
         let r = bird_config.bird_size * 1.5;
         if self.position.x + r < -half_width {
             self.position.x = half_width - r;
@@ -67,123 +72,62 @@ impl Bird {
         }
     }
 
-    fn seperate(&mut self, birds: &KdTree2<Bird>, bird_config: &BirdConfig) {
+    fn seperate(&mut self, birds_to_avoid: Vec<&Bird>, bird_config: &BirdConfig) -> Vector2<f32> {
         let mut steer = Vector2::new(0., 0.);
-        let mut count = 0;
-        let other_birds = birds.within_radius(self, bird_config.desired_separation);
-
-        other_birds.iter().for_each(|other_bird| {
+        let count = birds_to_avoid.len();
+        birds_to_avoid.iter().for_each(|other_bird| {
             let d = self.position.metric_distance(&other_bird.position);
-            if d > 0. && d < bird_config.desired_separation {
+            if d > 0f32 {
                 let mut diff = self.position - other_bird.position;
                 diff = diff.normalize();
-                steer = steer + diff;
-                count = count + 1;
+                diff /= d;
+                steer += diff;
             }
         });
-
-        if count as f32 > 0. && (count as f32).is_normal() {
-            steer = steer / count as f32;
+        if count > 0 {
+            steer /= count as f32;
         }
-
-        if steer.norm() > 0. && steer.norm().is_normal() {
+        if steer.magnitude() > 0f32 {
             steer = steer.normalize();
-            steer = steer * (bird_config.max_speed);
-            steer = steer - self.velocity;
-            clamp_magnitude(&mut steer, bird_config.max_speed);
+            steer *= bird_config.max_speed;
+            steer -= self.velocity;
+            clamp_magnitude(&mut steer, bird_config.max_force);
+            return steer;
         }
-
-        self.acceleration = self.acceleration + (bird_config.separation_multiplier * steer);
+        Vector2::new(0f32, 0f32)
     }
 
-    fn align(&mut self, birds: &KdTree2<Bird>, bird_config: &BirdConfig) {
-        let mut sum = Vector2::new(0., 0.);
-        let mut count = 0;
-        let mut steer = Vector2::new(0., 0.);
-        let other_birds = birds.within_radius(self, bird_config.neighbor_distance);
-
-        other_birds.iter().for_each(|other_bird| {
-            let d = self.position.metric_distance(&other_bird.position);
-            if (d > 0.0) && (d < bird_config.neighbor_distance) {
-                sum = sum + other_bird.velocity;
-                count = count + 1;
-            }
-        });
-
-        if count as f32 > 0. && (count as f32).is_normal() {
-            sum = sum / count as f32;
-            sum = sum.normalize();
-            sum = sum * bird_config.max_speed;
-            steer = sum - self.velocity;
+    fn align(&mut self, birds_to_follow: Vec<&Bird>, bird_config: &BirdConfig) -> Vector2<f32> {
+        let mut steer = Vector2::new(0f32, 0f32);
+        let count = birds_to_follow.len();
+        birds_to_follow
+            .iter()
+            .for_each(|other_bird| steer += other_bird.velocity);
+        if count > 0 {
+            steer /= count as f32;
+            steer = steer.normalize();
+            steer *= bird_config.max_speed;
+            steer -= self.velocity;
             clamp_magnitude(&mut steer, bird_config.max_force);
         }
-
-        self.acceleration = self.acceleration + (bird_config.alignment_multiplier * steer);
+        steer
     }
 
-    fn cohesion(&mut self, birds: &KdTree2<Bird>, bird_config: &BirdConfig) {
-        let mut sum = Vector2::new(0., 0.);
-        let mut count = 0;
-        let mut steer = Vector2::new(0., 0.);
-        let other_birds = birds.within_radius(self, bird_config.neighbor_distance);
-
-        other_birds.iter().for_each(|other_bird| {
-            let d = self.position.metric_distance(&other_bird.position);
-            if (d > 0.0) && (d < bird_config.neighbor_distance) {
-                sum = sum + other_bird.position;
-                count = count + 1;
-            }
-        });
-        if count as f32 > 0. && (count as f32).is_normal() {
-            sum = sum / count as f32;
-            let mut desired = sum - self.position;
-            desired = desired.normalize();
-            desired = desired * bird_config.max_speed;
-            steer = desired - self.velocity;
-            clamp_magnitude(&mut steer, bird_config.max_force);
+    fn cohesion(&mut self, birds_to_follow: Vec<&Bird>, bird_config: &BirdConfig) -> Vector2<f32> {
+        let mut target = Vector2::new(0., 0.);
+        let count = birds_to_follow.len();
+        birds_to_follow
+            .iter()
+            .for_each(|other_bird| target -= other_bird.position);
+        if count > 0 {
+            target /= count as f32;
+            target -= self.position;
+            target = target.normalize();
+            target *= bird_config.max_speed;
+            target -= self.velocity;
+            clamp_magnitude(&mut target, bird_config.max_force);
         }
-
-        self.acceleration = self.acceleration + (bird_config.cohesion_multiplier * steer);
-    }
-
-    fn apply_flock_forces(&self, birds: &KdTree2<Bird>, bird_config: &BirdConfig) -> Vector2<f32> {
-        let other_birds = birds.within_radius(self, bird_config.neighbor_distance);
-        let num_other_birds = other_birds.len() as f32;
-        let mut sep = Vector2::new(0., 0.);
-        let mut ali = Vector2::new(0., 0.);
-        let mut coh = Vector2::new(0., 0.);
-        other_birds.iter().for_each(|other_bird| {
-            let diff = self.position - other_bird.position;
-            let d = diff.norm();
-            if d > f32::MIN {
-                if d > bird_config.desired_separation {
-                    sep += diff;
-                }
-                ali += other_bird.velocity;
-                coh -= other_bird.position;
-            }
-        });
-
-        if num_other_birds > 0. {
-            sep /= num_other_birds;
-            ali *= num_other_birds;
-            ali.set_magnitude(bird_config.max_speed);
-            clamp_magnitude(&mut ali, bird_config.max_speed);
-            coh /= num_other_birds;
-        }
-
-        if sep.magnitude() > 0. {
-            sep.set_magnitude(bird_config.max_speed);
-            sep += self.velocity;
-            clamp_magnitude(&mut sep, bird_config.max_force);
-        }
-
-        let f_net = Vector2::new(0., 0.)
-            + (sep * bird_config.separation_multiplier)
-            + (ali * bird_config.alignment_multiplier)
-            + (coh * bird_config.alignment_multiplier);
-
-        f_net
+        target
     }
 
     pub fn get_vertices(&self, bird_config: &BirdConfig) -> Vec<Vector2<f32>> {

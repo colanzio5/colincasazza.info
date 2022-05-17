@@ -33,7 +33,6 @@ export default class RendererStore extends VuexModule {
   }
 
   @mutation resize(): void {
-    console.log("resizing")
     vxm.renderer.rendererRootViewPort.resize();
     // first resize the renderer root viewport
     const { width, height } = vxm.renderer.rendererRootViewPort;

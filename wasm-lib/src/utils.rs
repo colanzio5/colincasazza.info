@@ -1,7 +1,7 @@
-use std::ops::{MulAssign, Neg};
+use std::{ops::{MulAssign, Neg, DivAssign}, string};
 
-use nalgebra::{clamp, Vector3, AbstractRotation, Vector2};
-use typenum::private::Invert;
+use nalgebra::{clamp, AbstractRotation, Vector2, Vector3};
+use typenum::{private::Invert, False};
 use wasm_bindgen::prelude::*;
 
 pub fn set_panic_hook() {
@@ -35,29 +35,26 @@ extern "C" {
 
 pub fn clamp_magnitude(vector: &mut Vector2<f32>, max: f32) {
     let length = vector.magnitude();
-    *vector /= length;
-    *vector *=  length.min(max).max(-max);
+    if nearly_equal(length, 0.0, 5.) { return; };
+    vector.div_assign(length);
+    let scale = length.min(max).max(-max);
+    vector.mul_assign(scale);
 }
 
-// pub fn clamp_magnitude(vector: &mut Vector2<f32>, max: f32) {
-//     if vector.magnitude().is_normal(){ 
-//         vector.normalize_mut();
-//         *vector *= vector.magnitude().clamp(-max, max);
-//     }
-// }
-
-pub fn nearly_equal( a: f32,  b: f32,  epsilon: f32) -> bool {
+pub fn nearly_equal(a: f32, b: f32, epsilon: f32) -> bool {
     let abs_a = (a).abs();
     let abs_b = (b).abs();
     let diff = (a - b).abs();
 
-    if a == b { // shortcut, handles infinities
+    if a == b {
+        // shortcut, handles infinities
         return true;
     } else if a == 0.0 || b == 0.0 || !diff.is_normal() {
         // a or b is zero or both are extremely close to it
         // relative error is less meaningful here
         return diff < (epsilon * f32::MIN);
-    } else { // use relative error
+    } else {
+        // use relative error
         return diff / (abs_a + abs_b) < epsilon;
     }
 }
