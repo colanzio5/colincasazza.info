@@ -4,10 +4,12 @@
 
 <script lang="ts">
 import useEmitter from "@/emitter";
+import { IWeightedArray } from "@/lib/util/random";
+import { vxm } from "@/store";
 import { GUI } from "dat.gui";
 import { Vue } from "vue-class-component";
-import FlockBackground from "./FlockBackground.vue"
-
+import { IBirdConfig } from "./background";
+import FlockBackground from "./FlockBackground.vue";
 
 export default class BackgroundDebug extends Vue {
   gui!: GUI;
@@ -17,11 +19,8 @@ export default class BackgroundDebug extends Vue {
     return this.$refs["gui-container"] as HTMLElement;
   }
 
-  get flockBackgroundComponent(): FlockBackground {
-    return (this.$root?.$refs as any) as FlockBackground;
-  }
-
-  mounted() {;
+  mounted() {
+    console.log(vxm.background.birdConfigs);
     this.initGui();
   }
 
@@ -48,65 +47,72 @@ export default class BackgroundDebug extends Vue {
     this.gui.domElement.style.zIndex = "9999";
     const globals = this.gui.addFolder("globals");
 
+    globals
+      .add(vxm.background, "maxFlockSize")
+      .name("max flock size")
+      .onFinishChange(this.applyChanges);
+    globals.open();
 
-    // globals
-    //   .add(this.flockConfig, "maxFlockSize", 0)
-    //   .onFinishChange(this.applyChanges);
-    // globals.open();
-    // const birdTypes = this.gui.addFolder("birds");
-    // this.flockConfig.birdConfigs
-    //   .sort((a: BirdConfig, b: BirdConfig) => a.probability - b.probability)
-    //   .forEach((config: BirdConfig) => {
-    //     const birdFolder = birdTypes.addFolder(
-    //       config.probability === -1 ? config.id + " (default)" : config.id
-    //     );
-    //     if (config.probability !== -1) {
-    //       birdFolder
-    //         .add(config, "probability")
-    //         .step(0.01)
-    //         .min(0)
-    //         .max(1)
-    //         .onFinishChange(this.applyChanges).domElement.title =
-    //         "**note** bird order determines spawn type when sum all probabilities > 1";
-    //     }
-    //     birdFolder
-    //       .addColor(config, "color")
-    //       .setValue(config.color)
-    //       .onFinishChange(this.applyChanges)
-    //       .domElement.inputMode = "none"; // disable keyboard inputs
-    //     const dist = birdFolder
-    //       .add(config, "neighborDistance")
-    //       .min(0)
-    //       .max(config.desiredSeparation)
-    //       .onFinishChange(this.applyChanges);
-    //     dist.domElement.title =
-    //       "**note** neighbor distance must < desired separation";
-    //     birdFolder.add(config, "desiredSeparation").onFinishChange(() => {
-    //       this.applyChanges();
-    //       dist.max(config.desiredSeparation);
-    //     });
+    const birdTypes = this.gui.addFolder("birds");
+    const sortedConfigs = vxm.background.birdConfigs.sort(
+      (a: IBirdConfig, b: IBirdConfig) => a.probability - b.probability
+    );
 
-    //     birdFolder
-    //       .add(config, "separationMultiplier")
-    //       .onFinishChange(this.applyChanges);
-    //     birdFolder
-    //       .add(config, "alignmentMultiplier")
-    //       .onFinishChange(this.applyChanges);
-    //     birdFolder
-    //       .add(config, "cohesionMultiplier")
-    //       .onFinishChange(this.applyChanges);
-    //     birdFolder.add(config, "maxSpeed").onFinishChange(this.applyChanges);
-    //     birdFolder.add(config, "maxForce").onFinishChange(this.applyChanges);
-    //     birdFolder.add(config, "birdSize").onFinishChange(this.applyChanges);
-    //     if (config.probability !== -1) {
-    //       birdFolder
-    //         .add({ "-": this.removeBird.bind(this, config) }, "-")
-    //         .onFinishChange(this.applyChanges);
-    //     }
-    //   });
-    // birdTypes.add({ "+": this.addBirdType }, "+");
+    sortedConfigs.forEach((config: IBirdConfig) => {
+      const probability =
+        config.probability === -1 ? config.id + " (default)" : config.id;
+      const birdFolder = birdTypes.addFolder(probability);
+      if (config.probability !== -1) {
+        birdFolder.add(config, "probability").step(0.01).min(0).max(1);
+        birdFolder.domElement.title =
+          "**note** bird order determines spawn type when sum all probabilities > 1";
+      }
+      console.log(config);
+      birdFolder
+        .addColor(config, "birdColor")
+        .setValue(config.birdColor)
+        .onFinishChange(
+          vxm.background.updateBirdConfig.bind(this, config)
+        ).domElement.inputMode = "none"; // disable keyboard inputs
+      const dist = birdFolder
+        .add(config, "neighborDistance")
+        .min(0)
+        .max(config.desiredSeparation)
+        .onFinishChange(vxm.background.updateBirdConfig.bind(this, config));
+      dist.domElement.title =
+        "**note** neighbor distance must < desired separation";
+      birdFolder.add(config, "desiredSeparation").onFinishChange(() => {
+        vxm.background.updateBirdConfig.bind(this, config)();
+        dist.max(config.desiredSeparation);
+      });
+      birdFolder
+        .add(config, "separationMultiplier")
+        .onFinishChange(vxm.background.updateBirdConfig.bind(this, config));
+      birdFolder
+        .add(config, "alignmentMultiplier")
+        .onFinishChange(vxm.background.updateBirdConfig.bind(this, config));
+      birdFolder
+        .add(config, "cohesionMultiplier")
+        .onFinishChange(vxm.background.updateBirdConfig.bind(this, config));
+      birdFolder
+        .add(config, "maxSpeed")
+        .onFinishChange(vxm.background.updateBirdConfig.bind(this, config));
+      birdFolder
+        .add(config, "maxForce")
+        .onFinishChange(vxm.background.updateBirdConfig.bind(this, config));
+      birdFolder
+        .add(config, "birdSize")
+        .onFinishChange(vxm.background.updateBirdConfig.bind(this, config));
+      if (config.probability !== -1) {
+        birdFolder.add(
+          { "-": vxm.background.removeBirdConfig.bind(this, config) },
+          "-"
+        );
+      }
+    });
+    birdTypes.add({ "+": this.addBirdType }, "+");
     // birdTypes.add({ applyChanges: this.applyChanges }, "applyChanges");
-    // birdTypes.open();
+    birdTypes.open();
   }
 
   addBirdType() {
@@ -125,12 +131,7 @@ export default class BackgroundDebug extends Vue {
     //   })
     // );
 
-
     this.initGui();
-  }
-
-  applyChanges() {
-    this.emitter.emit("apply-flock-config", {});
   }
 }
 </script>

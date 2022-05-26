@@ -54,9 +54,9 @@
         sep 2015 - dec 2019 - bachelor’s degree in computer science
       </div>
     </div>
-    <!-- <router-link class="select-text cursor-pointer" to="/projects/three/flock">
+    <router-link class="select-text cursor-pointer" to="/projects/three/flock">
       <div class="link text-xs">like the background? click here</div>
-    </router-link> -->
+    </router-link>
   </div>
 </template>
 

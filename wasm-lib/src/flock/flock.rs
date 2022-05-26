@@ -31,55 +31,6 @@ impl Flock {
         }
     }
 
-    // we could also pass a js closure that updates vertex buffer
-    // todo: compare [but wasm **should** win]
-    // js closure passed in should update
-    // the flocks entity geometry
-    // given the vertices passed.
-    pub fn update(
-        &mut self,
-        width: f32,
-        height: f32,
-        time_step: f32,
-        update_flock_geometry: &js_sys::Function,
-    ) {
-        // for collecting vertices and colors
-        let mut vertices: Vec<f32> = Vec::new();
-        let mut colors: Vec<f32> = Vec::new();
-
-        // we need to store the current state of the flock
-        // (just position for each bird)
-        let new_flock: Vec<Bird> = self
-            .birds
-            .clone()
-            .to_vec()
-            .iter_mut()
-            .map(|bird| {
-                let bird_config = self.configs.get(&bird.config_id).unwrap();
-                bird.update_bird(&self.birds, bird_config, &width, &height, &time_step);
-                for vertex in bird.get_vertices(bird_config) {
-                    vertices.push(vertex.x);
-                    vertices.push(vertex.y);
-                    vertices.push(0.);
-                    colors.push(bird_config.color_r);
-                    colors.push(bird_config.color_g);
-                    colors.push(bird_config.color_b);
-                }
-                bird.to_owned()
-            })
-            .collect();
-        
-        let js_vertices = js_sys::Float32Array::from(vertices.as_slice());
-        let js_colors = js_sys::Float32Array::from(colors.as_slice());
-        let e = update_flock_geometry.call2(&JsValue::null(), &js_vertices, &js_colors);
-        if e.is_err() {
-            log("could not call js update vertex buffer function from rust");
-        }
-        // rebuild tree
-        self.birds =
-            kd_tree::KdTree2::build_by_key(new_flock, |bird, k| OrderedFloat(bird.position[k]));
-    }
-
     pub fn add_bird_config(&mut self, config_id: String, bird_config: BirdConfig) {
         self.configs.insert(config_id, bird_config);
     }
@@ -135,5 +86,54 @@ impl Flock {
         self.birds = kd_tree::KdTree2::build_by_key(new_birds, |bird, k| {
             ordered_float::OrderedFloat(bird.position[k])
         });
+    }
+
+    // we could also pass a js closure that updates vertex buffer
+    // todo: compare [but wasm **should** win]
+    // js closure passed in should update
+    // the flocks entity geometry
+    // given the vertices passed.
+    pub fn update(
+        &mut self,
+        width: f32,
+        height: f32,
+        time_step: f32,
+        update_flock_geometry: &js_sys::Function,
+    ) {
+        // for collecting vertices and colors
+        let mut vertices: Vec<f32> = Vec::new();
+        let mut colors: Vec<f32> = Vec::new();
+
+        // we need to store the current state of the flock
+        // (just position for each bird)
+        let new_flock: Vec<Bird> = self
+            .birds
+            .clone()
+            .to_vec()
+            .iter_mut()
+            .map(|bird| {
+                let bird_config = self.configs.get(&bird.config_id).unwrap();
+                bird.update_bird(&self.birds, bird_config, &width, &height, &time_step);
+                for vertex in bird.get_vertices(bird_config) {
+                    vertices.push(vertex.x);
+                    vertices.push(vertex.y);
+                    vertices.push(0.);
+                    colors.push(bird_config.color_r);
+                    colors.push(bird_config.color_g);
+                    colors.push(bird_config.color_b);
+                }
+                bird.to_owned()
+            })
+            .collect();
+        
+        let js_vertices = js_sys::Float32Array::from(vertices.as_slice());
+        let js_colors = js_sys::Float32Array::from(colors.as_slice());
+        let e = update_flock_geometry.call2(&JsValue::null(), &js_vertices, &js_colors);
+        if e.is_err() {
+            log("could not call js update vertex buffer function from rust");
+        }
+        // rebuild tree
+        self.birds =
+            kd_tree::KdTree2::build_by_key(new_flock, |bird, k| OrderedFloat(bird.position[k]));
     }
 }
