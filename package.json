@@ -5,7 +5,6 @@
     "dev": "vite",
     "build:wasm": "wasm-pack build wasm-lib -t web",
     "build:ts": "vue-tsc --noEmit && vite build",
-    "build": "npm run build:wasm && npm run build:ts",
     "deploy": "npm run build && firebase deploy",
     "preview": "vite preview"
   },

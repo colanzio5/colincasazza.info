@@ -2,7 +2,7 @@ use nalgebra::Vector2;
 use ordered_float::OrderedFloat;
 use wasm_bindgen::{prelude::*, throw_str};
 
-use std::collections::HashMap;
+use std::{collections::HashMap};
 
 use crate::utils::log;
 
@@ -51,7 +51,16 @@ impl Flock {
         self.configs.remove(&config_id);
     }
 
-    pub fn add_bird(&mut self, config_id: String, width: f32, height: f32) {
+    pub fn add_bird_at_random_position(&mut self, config_id: String, width: f32, height: f32) {
+        // generate some random params for bird
+        let half_width = width / 2f32;
+        let half_height = height / 2f32;
+        let x = (self.rng.rand_float() * width) - half_width;
+        let y = (self.rng.rand_float() * height) - half_height;
+        self.add_bird(config_id, x, y);
+    }
+
+    pub fn add_bird(&mut self, config_id: String, pos_x: f32, pos_y: f32) {
         // check the config exists
         if !self.configs.contains_key(&config_id) {
             let err = format!(
@@ -61,12 +70,7 @@ impl Flock {
             log(&err);
             throw_str(&err);
         }
-        // generate some random params for bird
-        let half_width = width / 2.;
-        let half_height = height / 2.;
-        let x = (self.rng.rand_float() * width) - half_width;
-        let y = (self.rng.rand_float() * height) - half_height;
-        let position = Vector2::new(x, y);
+        let position = Vector2::new(pos_x, pos_y);
         let velocity = Vector2::new(-self.rng.rand_float(), self.rng.rand_float());
         let acceleration = Vector2::new(-self.rng.rand_float(), self.rng.rand_float());
         // add bird to flock
@@ -78,9 +82,16 @@ impl Flock {
             config_id,
         });
 
+        let num_birds = self.birds.len();
         // if oversized remove one from front of the vector
-        if self.birds.len() > usize::from(self.max_flock_size) {
-            new_birds = new_birds[1..new_birds.len()].to_vec();
+        if num_birds > usize::from(self.max_flock_size) {
+            // select index
+            let idx = self.rng.rand_range(0..num_birds as u32);
+            let start_idx = (idx - 1) as usize;
+            let end_idx = (idx + 2) as usize;
+            let start = new_birds[0..start_idx].to_vec();
+            let end = new_birds[end_idx..self.birds.len()].to_vec();
+            new_birds = [ start, end ].concat()
         }
         // rebuild tree
         self.birds = kd_tree::KdTree2::build_by_key(new_birds, |bird, k| {

@@ -2,45 +2,70 @@ import { IWeightedArray } from "@/lib/util/random";
 import {
   backgroundBirdConfigs,
   IBirdConfig,
-  MAX_FLOCK_SIZE,
+  MAX_FLOCK_SIZE
 } from "@/views/background/background";
-import { createModule, mutation, action } from "vuex-class-component";
-import { vxm } from ".";
+import init, { BirdConfig, Flock } from "wasm-lib";
+import { Color } from "three";
+import { action, createModule, mutation } from "vuex-class-component";
 
 const VuexModule = createModule({
   namespaced: "background",
   strict: false,
 });
 
-export class ControlsState {
-  // keyboard state
-  right = false;
-  left = false;
-  up = false;
-  down = false;
-  space = false;
-  // mouse state
-  mouseX = 0;
-  mouseY = 0;
-}
-
 export default class BackgroundStore extends VuexModule {
+  public $subscribeAction: any;
+  public birdConfigs: IWeightedArray<IBirdConfig> = backgroundBirdConfigs;
+  public maxFlockSize: number = MAX_FLOCK_SIZE;
+  public isDragging = false;
+  public isLoaded = false;
+  public updating = false;
+  public flock!: Flock;
 
-  maxFlockSize: number = MAX_FLOCK_SIZE;
-  birdConfigs: IWeightedArray<IBirdConfig> = backgroundBirdConfigs;
-  isDragging = false;
-  isLoaded = false;
-  updating = false;
-  
-  $subscribeAction: any;
-
-  @action async removeBirdConfig(configToRemove: IBirdConfig): Promise<void> {
-    // console.log("removeing bird config from store");
-    // console.log(configToRemove);
+  @action async initFlock() {
+    await init();
+    this.flock = Flock.new(
+      // todo: determine number birds to add based on screen size and performance
+      // const n = (this.view.viewPort.width * this.view.viewPort.height) / 500;
+      MAX_FLOCK_SIZE,
+      BigInt(new Date().getUTCMilliseconds())
+    );
+    // add configs for flock
+    for (const birdConfig of this.birdConfigs) {
+      await this.addBirdConfig(birdConfig);
+    }
+    this.isLoaded = true;
   }
 
-  @action async updateBirdConfig(configToUpdate: IBirdConfig): Promise<void> {
-    // console.log("`updating bird config in store");
-    // console.log(`configToUpdate);
+  @action async addBirdConfig(birdConfig: IBirdConfig) {
+    const config = await this.generateWASMBirdConfig(birdConfig);
+    this.flock.add_bird_config(birdConfig.id, config);
+  }
+
+  @action async updateBirdConfig(updatedBirdConfig: IBirdConfig) {
+    const config = await this.generateWASMBirdConfig(updatedBirdConfig);
+    this.flock.update_bird_config(updatedBirdConfig.id, config);
+  }
+
+  @action async generateWASMBirdConfig(birdConfig: IBirdConfig): Promise<BirdConfig> {
+    const color = new Color(birdConfig.birdColor);
+    const config = BirdConfig.new(
+      birdConfig.neighborDistance,
+      birdConfig.desiredSeparation,
+      birdConfig.separationMultiplier,
+      birdConfig.alignmentMultiplier,
+      birdConfig.cohesionMultiplier,
+      birdConfig.maxSpeed,
+      birdConfig.maxForce,
+      birdConfig.birdSize,
+      color.r,
+      color.g,
+      color.b
+    );
+    return config;
+  }
+
+  @mutation removeBirdConfig(configIdToRemove: string) {
+    this.flock.remove_bird_config(configIdToRemove);
   }
 }

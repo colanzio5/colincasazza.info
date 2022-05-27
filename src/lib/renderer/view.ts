@@ -58,7 +58,7 @@ export class View {
     // vertical fov in radians
     const vFOV = (this.camera.fov * Math.PI) / 180;
     // Math.abs to ensure the result is always positive
-    return 2 * Math.tan(vFOV / 2) * Math.abs(depth);
+    return 2 * Math.tan(vFOV / 2.0) * Math.abs(depth);
   }
 
   get visibleWidthAtZDepth(): number {
