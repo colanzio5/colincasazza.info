@@ -6,7 +6,6 @@
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
 import { View } from "@/lib/renderer/view";
-import { selectRandomFromWeightedArray } from "@/lib/util/random";
 import { vxm } from "@/store";
 import { throttle } from "lodash";
 import {
@@ -15,11 +14,10 @@ import {
   Color,
   LineBasicMaterial,
   LineSegments,
-  Vector3,
+  Vector3
 } from "three";
 import { lerp } from "three/src/math/MathUtils";
 import { Options, Vue } from "vue-class-component";
-import { MAX_FLOCK_SIZE } from "./background";
 
 @Options({
   components: {
@@ -74,16 +72,13 @@ export default class FlockBackground extends Vue {
       false
     );
     // add all the birds, but throttle it
-    let numberBirdsToAdd = MAX_FLOCK_SIZE;
     this.addBirdsToFlockInterval = window.setInterval(() => {
-      if (!numberBirdsToAdd--)
+      if (vxm.background.currentFlockSize >= vxm.background.maxFlockSize)
         clearInterval(this.addBirdsToFlockInterval as NodeJS.Timer);
-      const config = selectRandomFromWeightedArray(vxm.background.birdConfigs);
-      vxm.background.flock.add_bird_at_random_position(
-        config.id,
-        this.view.visibleWidthAtZDepth,
-        this.view.visibleHeightAtZDepth
-      );
+      vxm.background.addBirdAtRandomPosition({
+        viewWidth: this.view.visibleWidthAtZDepth,
+        viewHeight: this.view.visibleHeightAtZDepth,
+      });
     }, 25);
   }
 
@@ -105,8 +100,8 @@ export default class FlockBackground extends Vue {
     clearInterval(this.addBirdsToFlockInterval as NodeJS.Timer);
     /** make sure we clean up the wasm resources
     can we write this into the flock free function */
-    for (const config of vxm.background.birdConfigs) config.config?.free();
-    vxm.background.flock.free();
+    // for (const config of vxm.background.birdConfigs) config.free();
+    // vxm.background.flock.free();
   }
 
   updateFlockGeometry(vertices: Float32Array, colors: Float32Array) {
@@ -122,40 +117,33 @@ export default class FlockBackground extends Vue {
 
   renderTickCallback(_: View) {
     if (!vxm.background.isLoaded) return;
-    vxm.background.flock.update(
-      this.view.visibleWidthAtZDepth,
-      this.view.visibleHeightAtZDepth,
-      3,
-      this.updateFlockGeometry
-    );
-  }
-
-  addBirdFromEvent(x: number, y: number) {
-    console.log("event x,y: ", x, y);
-    const normClickX = x / this.view.viewPort.width;
-    const normClickY = y / this.view.viewPort.height;
-    const config = selectRandomFromWeightedArray(vxm.background.birdConfigs);
-    const halfSceneWidth = this.view.visibleWidthAtZDepth / 2;
-    const halfSceneHeight = this.view.visibleHeightAtZDepth / 2;
-    vxm.background.flock.add_bird(
-      config.id,
-      lerp(-halfSceneWidth, halfSceneWidth, normClickX),
-      -lerp(-halfSceneHeight, halfSceneHeight, normClickY)
-    );
-  }
-
-  mouseDrag(event: MouseEvent) {
-    if (!vxm.background.isDragging || vxm.background.updating) return;
-    const { x, y } = event;
-    this.addBirdFromEvent(x, y);
+    vxm.background.updateFlock({
+      sceneWidth: this.view.visibleWidthAtZDepth,
+      sceneHeight: this.view.visibleHeightAtZDepth,
+      timeStep: 2,
+      updateFlockGeometryCallback: this.updateFlockGeometry,
+    });
   }
 
   touchDrag(event: TouchEvent) {
     const touch = event.touches.item(event.touches.length - 1);
     if (!touch) return;
-    const x = touch.clientX;
-    const y = touch.clientY;
-    this.addBirdFromEvent(x, y);
+    this.addBirdFromEvent(touch.clientX, touch.clientY);
+  }
+
+  mouseDrag(event: MouseEvent) {
+    if (!vxm.background.isDragging || vxm.background.updating) return;
+    this.addBirdFromEvent(event.x, event.y);
+  }
+
+  addBirdFromEvent(eventX: number, eventY: number) {
+    const normClickX = eventX / this.view.viewPort.width;
+    const normClickY = eventY / this.view.viewPort.height;
+    const halfSceneWidth = this.view.visibleWidthAtZDepth / 2;
+    const halfSceneHeight = this.view.visibleHeightAtZDepth / 2;
+    const x = lerp(-halfSceneWidth, halfSceneWidth, normClickX);
+    const y = -lerp(-halfSceneHeight, halfSceneHeight, normClickY);
+    vxm.background.addBrdAtPosition({ x, y });
   }
 }
 </script>

@@ -1,10 +1,9 @@
-use std::string;
-
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
-#[derive(Clone)]
 pub struct BirdConfig {
+    id: String,
+    pub probability: i32,
     pub neighbor_distance: f32,
     pub desired_separation: f32,
     pub separation_multiplier: f32,
@@ -20,7 +19,19 @@ pub struct BirdConfig {
 
 #[wasm_bindgen]
 impl BirdConfig {
+
+    #[wasm_bindgen(getter)]
+    pub fn id(&self) -> String {
+        self.id.clone()
+    }
+    #[wasm_bindgen(setter)]
+    pub fn set_id(&mut self, id: String) {
+        self.id = id;
+    }
+
     pub fn new(
+        id: String,
+        probability: i32,
         neighbor_distance: f32,
         desired_separation: f32,
         separation_multiplier: f32,
@@ -34,6 +45,8 @@ impl BirdConfig {
         color_b: f32,
     ) -> BirdConfig {
         BirdConfig {
+            id,
+            probability,
             neighbor_distance,
             desired_separation,
             separation_multiplier,

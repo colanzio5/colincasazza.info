@@ -1,6 +1,5 @@
-import themeColors from "@/styles/themeColors";
 import { ColorRepresentation } from "three";
-import { BirdConfig } from "wasm-lib"
+import { BirdConfig } from "wasm-lib/pkg/wasm_lib";
 
 export interface IBirdConfig {
   id: string;
@@ -14,10 +13,10 @@ export interface IBirdConfig {
   maxForce: number;
   birdSize: number;
   birdColor: ColorRepresentation;
-  config?: BirdConfig;
+  wasmObject?: BirdConfig;
 }
 
-export const backgroundBirdConfigs = [
+export const backgroundBirdConfigs: IBirdConfig[] = [
   {
     id: "default",
     probability: -1,
@@ -29,11 +28,11 @@ export const backgroundBirdConfigs = [
     maxSpeed: 2,
     maxForce: 0.01,
     birdSize: 5,
-    birdColor: themeColors.secondary[200],
+    birdColor: themeColors.secondary[800],
   },
   {
     id: "black_sheep",
-    probability: 1/100,
+    probability: 1 / 100,
     neighborDistance: 200,
     desiredSeparation: 50,
     separationMultiplier: 1.7,
@@ -42,7 +41,7 @@ export const backgroundBirdConfigs = [
     maxSpeed: 2,
     maxForce: 0.01,
     birdSize: 7,
-    birdColor: themeColors.primary[200],
+    birdColor: themeColors.primary[800],
   },
 ];
 

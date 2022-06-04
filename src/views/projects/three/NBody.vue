@@ -11,7 +11,6 @@ import {
 } from "@/lib/renderer/entitys/nbody.entity";
 import { View } from "@/lib/renderer/view";
 import { randomFromRange, randomIntFromRange } from "@/lib/util/random";
-import themeColors from "@/styles/themeColors";
 import RAPIER, {
   RigidBody,
   RigidBodyDesc,

@@ -1,12 +1,15 @@
-import { IWeightedArray } from "@/lib/util/random";
+import {
+  IWeightedArray,
+  selectRandomFromWeightedArray,
+} from "@/lib/util/random";
 import {
   backgroundBirdConfigs,
   IBirdConfig,
-  MAX_FLOCK_SIZE
+  MAX_FLOCK_SIZE,
 } from "@/views/background/background";
-import init, { BirdConfig, Flock } from "wasm-lib";
 import { Color } from "three";
 import { action, createModule, mutation } from "vuex-class-component";
+import init, { BirdConfig, Flock } from "wasm-lib";
 
 const VuexModule = createModule({
   namespaced: "background",
@@ -15,41 +18,117 @@ const VuexModule = createModule({
 
 export default class BackgroundStore extends VuexModule {
   public $subscribeAction: any;
-  public birdConfigs: IWeightedArray<IBirdConfig> = backgroundBirdConfigs;
-  public maxFlockSize: number = MAX_FLOCK_SIZE;
+  public birdConfigs: IWeightedArray<IBirdConfig> = [];
   public isDragging = false;
   public isLoaded = false;
   public updating = false;
-  public flock!: Flock;
 
-  @action async initFlock() {
+  private _maxFlockSize: number = MAX_FLOCK_SIZE;
+  private _flock!: Flock;
+
+  get currentFlockSize(): number {
+    return this._flock.get_current_flock_size() || 0;
+  }
+
+  get maxFlockSize(): number {
+    return this._maxFlockSize;
+  }
+
+  set maxFlockSize(_maxFlockSize: number) {
+    this._flock.set_max_flock_size(_maxFlockSize);
+    this._maxFlockSize = _maxFlockSize;
+  }
+
+  @action async removeBirdConfig(configIdToRemove: string) {
+    this.birdConfigs = this.birdConfigs.filter(
+      (config) => config.id != configIdToRemove
+    );
+    this._flock.remove_bird_config(configIdToRemove);
+  }
+
+  @action async addBirdConfig(birdConfig: IBirdConfig): Promise<void> {
+    const config = await this.generateWASMBirdConfig(birdConfig);
+    this.birdConfigs.push(birdConfig);
+    this._flock.add_bird_config(birdConfig.id, config);
+  }
+
+  @action async initFlock(): Promise<void> {
+    if (this.isLoaded || this.updating) return;
+    this.updating = true;
     await init();
-    this.flock = Flock.new(
+    this._flock = Flock.new(
       // todo: determine number birds to add based on screen size and performance
       // const n = (this.view.viewPort.width * this.view.viewPort.height) / 500;
       MAX_FLOCK_SIZE,
       BigInt(new Date().getUTCMilliseconds())
     );
     // add configs for flock
-    for (const birdConfig of this.birdConfigs) {
+    for (const birdConfig of backgroundBirdConfigs) {
       await this.addBirdConfig(birdConfig);
     }
+    this.updating = false;
     this.isLoaded = true;
   }
 
-  @action async addBirdConfig(birdConfig: IBirdConfig) {
-    const config = await this.generateWASMBirdConfig(birdConfig);
-    this.flock.add_bird_config(birdConfig.id, config);
+  @action async updateFlock(props: {
+    sceneWidth: number;
+    sceneHeight: number;
+    timeStep: number;
+    updateFlockGeometryCallback: (
+      vertices: Float32Array,
+      colors: Float32Array
+    ) => void;
+  }) {
+    this._flock.update(
+      props.sceneWidth,
+      props.sceneHeight,
+      props.timeStep,
+      props.updateFlockGeometryCallback
+    );
   }
 
-  @action async updateBirdConfig(updatedBirdConfig: IBirdConfig) {
+  @action async addBirdAtRandomPosition(props: {
+    viewWidth: number;
+    viewHeight: number;
+  }): Promise<void> {
+    const config = selectRandomFromWeightedArray(this.birdConfigs);
+    this._flock.add_bird_at_random_position(
+      config.id,
+      props.viewWidth,
+      props.viewHeight
+    );
+  }
+
+  @action async addBrdAtPosition(props: {
+    x: number;
+    y: number;
+  }): Promise<void> {
+    const config = selectRandomFromWeightedArray(this.birdConfigs);
+    this._flock.add_bird(config.id, props.x, props.y);
+  }
+
+  @action async updateBirdConfig(
+    updatedBirdConfig: IBirdConfig
+  ): Promise<void> {
     const config = await this.generateWASMBirdConfig(updatedBirdConfig);
-    this.flock.update_bird_config(updatedBirdConfig.id, config);
+    this.birdConfigs = this.birdConfigs.filter(
+      (birdConfig) => birdConfig.id !== updatedBirdConfig.id
+    );
+    this.birdConfigs.push(updatedBirdConfig);
+    this._flock.update_bird_config(updatedBirdConfig.id, config);
   }
 
-  @action async generateWASMBirdConfig(birdConfig: IBirdConfig): Promise<BirdConfig> {
+  /** generates the wasm bird config
+   * and attaches the wasm object to
+   * IBirdConfig object */
+  @action async generateWASMBirdConfig(
+    birdConfig: IBirdConfig
+  ): Promise<BirdConfig> {
+    console.log(birdConfig);
     const color = new Color(birdConfig.birdColor);
     const config = BirdConfig.new(
+      birdConfig.id,
+      birdConfig.probability,
       birdConfig.neighborDistance,
       birdConfig.desiredSeparation,
       birdConfig.separationMultiplier,
@@ -63,9 +142,5 @@ export default class BackgroundStore extends VuexModule {
       color.b
     );
     return config;
-  }
-
-  @mutation removeBirdConfig(configIdToRemove: string) {
-    this.flock.remove_bird_config(configIdToRemove);
   }
 }

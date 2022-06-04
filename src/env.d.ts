@@ -35,35 +35,55 @@ declare module 'vue/types/vue' {
   }
 }
 
-declare module '*theme.colors.js' {
+declare module '*themeColors.js' {
   const themeColors: {
     primary: {
+      "50": number,
       "100": number,
       "200": number, 
       "300": number,
       "400": number,
-      "500": number
+      "500": number,
+      "600": number,
+      "700": number,
+      "800": number,
+      "900": number,
     },
     highlight: {
+      "50": number,
       "100": number,
       "200": number, 
       "300": number,
       "400": number,
-      "500": number
+      "500": number,
+      "600": number,
+      "700": number,
+      "800": number,
+      "900": number,
     },
     secondary: {
+      "50": number,
       "100": number,
       "200": number, 
       "300": number,
       "400": number,
-      "500": number
+      "500": number,
+      "600": number,
+      "700": number,
+      "800": number,
+      "900": number,
     },
     compliment: {
+      "50": number,
       "100": number,
       "200": number, 
       "300": number,
       "400": number,
-      "500": number
+      "500": number,
+      "600": number,
+      "700": number,
+      "800": number,
+      "900": number,
     }
   }
   export default themeColors;

@@ -1,12 +1,12 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
-const themeColors = require("./theme.colors");
+const themeColors = require("./src/styles/themeColors");
 
 const fontFamily = defaultTheme.fontFamily;
 fontFamily["sans"] = ["Courier New", "Roboto", "system-ui"];
 
 
 module.exports = {
-  purge: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+  purge: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}", "./wasm-lib/pkg/*.{vue,js,ts,jsx,tsx"],
   theme: {
     fontFamily, // <-- this is where the override is happening
     extend: {

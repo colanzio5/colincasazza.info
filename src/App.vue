@@ -14,6 +14,9 @@
 </template>
 
 <style lang="postcss">
+html, body {
+  background: black;
+}
 .app-wrapper {
   @apply w-screen h-screen overflow-hidden;
 }
@@ -38,7 +41,7 @@ export default class App extends Vue {
     return vxm.renderer.rendererRootViewPort.isMounted;
   }
 
-   mounted(): void {
+  mounted(): void {
     vxm.renderer.start();
   }
 }

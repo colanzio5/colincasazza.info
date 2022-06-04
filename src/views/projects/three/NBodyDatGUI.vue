@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts">
-import { randomColor, randomFromRange } from "@/lib/util/random";
-import themeColors from "@/styles/themeColors";
+import { randomFromRange } from "@/lib/util/random";
 import NBody from "@/views/projects/three/NBody.vue";
 import { GUI } from "dat.gui";
+import themeColors from "theme.colors";
 import { ColorRepresentation, Vector3 } from "three";
 import { Vue } from "vue-class-component";
 import { Model } from "vue-property-decorator";

@@ -68,7 +68,7 @@
 }
 
 .link {
-  @apply text-primary-100 hover:text-highlight-100 hover:cursor-pointer select-text;
+  @apply text-primary-400 hover:text-highlight-400 hover:cursor-pointer select-text;
 }
 
 ::selection {

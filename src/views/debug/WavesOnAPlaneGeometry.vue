@@ -5,7 +5,6 @@
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
 import { View } from "@/lib/renderer/view";
-import themeColors from "@/styles/themeColors";
 import {
   BufferAttribute,
   Color,

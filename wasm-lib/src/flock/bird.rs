@@ -1,8 +1,8 @@
 use kd_tree::{KdPoint, KdTree2};
-use nalgebra::{AbstractRotation, Matrix2, Vector2};
+use nalgebra::{Matrix2, Vector2};
 use std::f32::consts::PI;
 
-use crate::utils::{clamp_magnitude, log};
+use crate::utils::clamp_magnitude;
 
 use super::bird_config::BirdConfig;
 

@@ -32,8 +32,8 @@ void main() {
 }
 `;
 
-const backgroundColorString = new Color("black").toArray().join(", ")
-const colorString = new Color(themeColors.primary["100"]).toArray().join(", ")
+const backgroundColorString = new Color("black").toArray().join(", ");
+const colorString = new Color(themeColors.primary["100"]).toArray().join(", ");
 const fragmentShader = `
 uniform sampler2D tAudioData;
 varying vec2 vUv;
