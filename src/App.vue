@@ -5,7 +5,7 @@
       <div v-if="isAppReady">
         <FlockBackground class="absolute w-full h-full" />
         <div class="absolute w-full h-full flex flex-col z-30 p-4 pb-16">
-          <NavBar/>
+          <NavBar />
           <router-view />
         </div>
       </div>
@@ -14,7 +14,8 @@
 </template>
 
 <style lang="postcss">
-html, body {
+html,
+body {
   background: black;
 }
 .app-wrapper {

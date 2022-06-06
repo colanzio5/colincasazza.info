@@ -1,14 +1,14 @@
 import {
-  IWeightedArray,
   selectRandomFromWeightedArray,
+  type IWeightedArray
 } from "@/lib/util/random";
 import {
   backgroundBirdConfigs,
-  IBirdConfig,
   MAX_FLOCK_SIZE,
+  type IBirdConfig
 } from "@/views/background/background";
 import { Color } from "three";
-import { action, createModule, mutation } from "vuex-class-component";
+import { action, createModule } from "vuex-class-component";
 import init, { BirdConfig, Flock } from "wasm-lib";
 
 const VuexModule = createModule({
@@ -17,11 +17,13 @@ const VuexModule = createModule({
 });
 
 export default class BackgroundStore extends VuexModule {
-  public $subscribeAction: any;
   public birdConfigs: IWeightedArray<IBirdConfig> = [];
   public isDragging = false;
   public isLoaded = false;
   public updating = false;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public $subscribeAction: any;
 
   private _maxFlockSize: number = MAX_FLOCK_SIZE;
   private _flock!: Flock;

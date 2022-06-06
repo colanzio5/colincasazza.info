@@ -22,7 +22,7 @@ import {
 
 import * as THREE from "three";
 import { Options, Vue } from "vue-class-component";
-import themeColors from "@/styles/themeColors";
+import { themeColors } from "@/styles/theme.colors.js";
 
 const vertexShader = `
 varying vec2 vUv;
@@ -58,15 +58,15 @@ export default class EQDebug extends Vue {
   // plane!: Mesh;
   scrollIdx = 0;
   throttle = 0;
-  last: number = 0;
-  hz: number = 1;
-  inc: number = 5;
+  last = 0;
+  hz = 1;
+  inc = 5;
 
   // audio anayzer
-  analyser: any;
-  uniforms: any;
-  renderer: any;
-  fftSize: number = 128;
+  analyser: unknown;
+  uniforms: unknown;
+  renderer: unknown;
+  fftSize = 128;
   listener!: AudioListener;
   audio!: THREE.Audio;
   geometry!: PlaneGeometry;

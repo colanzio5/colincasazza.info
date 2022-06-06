@@ -1,0 +1,15 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "wasm-lib/pkg/**/*.*", "./src/styles/theme.colors.js"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "theme-colors": ["./theme.colors"],
+      "wasm-lib": ["./src/wasm-lib/pkg/*"]
+    },
+    "experimentalDecorators": true
+  }
+}

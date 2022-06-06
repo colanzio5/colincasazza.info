@@ -12,10 +12,9 @@ import {
 } from "@/lib/util/random";
 import { vxm } from "@/store";
 import { GUI } from "dat.gui";
-import { Color } from "three";
 import { generateUUID } from "three/src/math/MathUtils";
 import { Vue } from "vue-class-component";
-import { IBirdConfig } from "./background";
+// import { IBirdConfig } from "./background";
 
 export default class BackgroundDebug extends Vue {
   gui!: GUI;
@@ -99,8 +98,9 @@ export default class BackgroundDebug extends Vue {
       birdFolder
         .addColor(config, "birdColor")
         .setValue(config.birdColor)
-        .onFinishChange(() => vxm.background.updateBirdConfig(config)).domElement.inputMode =
-        "none"; // disable keyboard inputs
+        .onFinishChange(() =>
+          vxm.background.updateBirdConfig(config)
+        ).domElement.inputMode = "none"; // disable keyboard inputs
       birdFolder
         .add(config, "neighborDistance")
         .min(0)

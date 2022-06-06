@@ -1,5 +1,6 @@
-import { ColorRepresentation } from "three";
-import { BirdConfig } from "wasm-lib/pkg/wasm_lib";
+import { themeColors } from "@/styles/theme.colors.js";
+import type { ColorRepresentation } from "three";
+import type { BirdConfig } from "wasm-lib";
 
 export interface IBirdConfig {
   id: string;
@@ -28,7 +29,7 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     maxSpeed: 2,
     maxForce: 0.01,
     birdSize: 5,
-    birdColor: themeColors.secondary[800],
+    birdColor: themeColors.primary[800],
   },
   {
     id: "black_sheep",

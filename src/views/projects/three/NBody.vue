@@ -6,8 +6,8 @@
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
 import {
-  INBodyEntityOptions,
   NBodyEntity,
+  type INBodyEntityOptions,
 } from "@/lib/renderer/entitys/nbody.entity";
 import { View } from "@/lib/renderer/view";
 import { randomFromRange, randomIntFromRange } from "@/lib/util/random";
@@ -18,9 +18,16 @@ import RAPIER, {
   World,
 } from "@dimforge/rapier2d-compat";
 import { toRaw } from "@vue/reactivity";
-import { Color, ColorRepresentation, Scene, Vector2, Vector3 } from "three";
+import {
+  Color,
+  Scene,
+  Vector2,
+  Vector3,
+  type ColorRepresentation,
+} from "three";
 import { Options, Vue } from "vue-class-component";
-import NBodyDatGUI from "@/views/projects/three/NBodyDatGUI.vue"
+import NBodyDatGUI from "@/views/projects/three/NBodyDatGUI.vue";
+import { themeColors } from "@/styles/theme.colors.js";
 
 @Options({
   components: {
@@ -41,7 +48,7 @@ export default class NBody extends Vue {
   }[] = [
     {
       origin: new Vector3(-380400, 0),
-      mass: 7.34767309 * (10 ** 22),
+      mass: 7.34767309 * 10 ** 22,
       radius: 1737.4,
       linearVelocity: new Vector3(0, 2500),
       angularVelocity: 0,
@@ -49,7 +56,7 @@ export default class NBody extends Vue {
     },
     {
       origin: new Vector3(0, 0),
-      mass: 5.972 * (10 ** 24),
+      mass: 5.972 * 10 ** 24,
       radius: 6371,
       linearVelocity: new Vector3(0, 100),
       angularVelocity: 0,
@@ -87,7 +94,7 @@ export default class NBody extends Vue {
       this.view.scene.remove(toRaw(entity.debugPath.line));
     }
   }
-  renderTickCallback(_: View) {
+  renderTickCallback() {
     this.applyGravity();
     this.physicsWorld.step();
     // update visual entities to reflect rigidbodies
@@ -129,9 +136,9 @@ export default class NBody extends Vue {
   }
 
   clearSimulation() {
-    this.nBodies.forEach(body => body.entity.dispose())
+    this.nBodies.forEach((body) => body.entity.dispose());
     this.view.scene = new Scene();
-    this.nBodies = []
+    this.nBodies = [];
   }
 
   applyGravity() {

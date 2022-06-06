@@ -4,10 +4,9 @@
 
 <script lang="ts">
 import { randomFromRange } from "@/lib/util/random";
-import NBody from "@/views/projects/three/NBody.vue";
+import type NBody from "@/views/projects/three/NBody.vue";
 import { GUI } from "dat.gui";
-import themeColors from "theme.colors";
-import { ColorRepresentation, Vector3 } from "three";
+import { Color, Vector3, type ColorRepresentation } from "three";
 import { Vue } from "vue-class-component";
 import { Model } from "vue-property-decorator";
 
@@ -82,7 +81,7 @@ export default class Controls extends Vue {
   }
 
   removeNbodyAtIndex(indexToRemove: number) {
-    this._simConfig.splice(indexToRemove)
+    this._simConfig.splice(indexToRemove);
   }
 
   addNbody() {
@@ -105,10 +104,11 @@ export default class Controls extends Vue {
     this._simConfig.push({
       origin: randPos(),
       radius: this.randomIntFromInterval(2000, 5000),
-      mass: randomFromRange(10*(10**22), 10*(10**24)),
+      mass: randomFromRange(10 * 10 ** 22, 10 * 10 ** 24),
       linearVelocity: randVel(),
       angularVelocity: randomFromRange(-2, 2),
-      color: themeColors.primary["100"],
+      // color: themeColors.primary["100"],
+      color: new Color("red").getHexString(),
     });
     this.configGUI();
   }

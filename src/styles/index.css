@@ -1,4 +1,3 @@
-/* ./src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -78,7 +77,6 @@
   @apply text-highlight-200 /* Gecko Browsers */;
 }
 
-
 /** mobile scroll bar enabled on desktop */
 ::-webkit-scrollbar {
   width: 1px;
@@ -87,7 +85,7 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-  @apply bg-transparent
+  @apply bg-transparent;
 }
 
 /* Handle */
