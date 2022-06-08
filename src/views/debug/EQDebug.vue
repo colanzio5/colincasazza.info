@@ -22,7 +22,7 @@ import {
 
 import * as THREE from "three";
 import { Options, Vue } from "vue-class-component";
-import { themeColors } from "@/styles/theme.colors.js";
+import { default as themeColors } from "@/styles/theme.colors.mjs";
 
 const vertexShader = `
 varying vec2 vUv;
@@ -143,4 +143,5 @@ export default class EQDebug extends Vue {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+</style>

@@ -1,13 +1,17 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "wasm-lib/pkg/**/*.*", "./src/styles/theme.colors.js"],
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "wasm-lib/pkg/**/*.*", "src/styles/theme.colors.mjs"],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
+    "target": "esnext",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "jsx": "preserve",
     "paths": {
       "@/*": ["./src/*"],
-      "theme-colors": ["./theme.colors"],
       "wasm-lib": ["./src/wasm-lib/pkg/*"]
     },
     "experimentalDecorators": true

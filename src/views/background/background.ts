@@ -1,6 +1,8 @@
-import { themeColors } from "@/styles/theme.colors.js";
+import { default as themeColors } from "@/styles/theme.colors.mjs";
 import type { ColorRepresentation } from "three";
 import type { BirdConfig } from "wasm-lib";
+
+console.log(themeColors);
 
 export interface IBirdConfig {
   id: string;
@@ -28,7 +30,7 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     cohesionMultiplier: 0.01,
     maxSpeed: 2,
     maxForce: 0.01,
-    birdSize: 5,
+    birdSize: 10,
     birdColor: themeColors.primary[800],
   },
   {
@@ -41,7 +43,7 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     cohesionMultiplier: 0.01,
     maxSpeed: 2,
     maxForce: 0.01,
-    birdSize: 7,
+    birdSize: 15,
     birdColor: themeColors.primary[800],
   },
 ];
