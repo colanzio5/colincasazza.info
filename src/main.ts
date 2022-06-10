@@ -4,7 +4,6 @@
 import RAPIER from "@dimforge/rapier2d-compat";
 import init from "wasm-lib";
 
-import "./styles/tailwind.css";
 
 // sync loading continues
 import mitt from "mitt";
@@ -13,6 +12,10 @@ import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
 import { store } from "./store";
+
+import "./styles/tailwind.css";
+import "./styles/globals.css";
+
 
 // finish async load wasm libraries before loading app
 await RAPIER.init();

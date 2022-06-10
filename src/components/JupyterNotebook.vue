@@ -1,21 +1,3 @@
-<template>
-  <iframe
-    :src="notebookPath"
-    :ref="notebookPath"
-    sandbox="allow-same-origin allow-scripts"
-    class="w-full h-full p-4 notebook"
-  ></iframe>
-</template>
-
-<style lang="postcss" scoped>
-
-.jp-Notebook {
-  @apply w-full h-full bg-transparent !important;
-}
-.jp-Notebook > * {
-  background: transparent;
-}
-</style>
 
 <script lang="ts">
 import { Vue, Options } from "vue-class-component";
@@ -31,7 +13,23 @@ export default class JupyterNotebook extends Vue {
   }
 
   mounted() {
-    
+
   }
 }
 </script>
+
+
+<template>
+  <iframe :src="notebookPath" :ref="notebookPath" sandbox="allow-same-origin allow-scripts"
+    class="w-full h-full p-4 notebook"></iframe>
+</template>
+
+<style lang="postcss" scoped>
+.jp-Notebook {
+  @apply w-full h-full bg-transparent;
+}
+
+.jp-Notebook>* {
+  background: transparent;
+}
+</style>

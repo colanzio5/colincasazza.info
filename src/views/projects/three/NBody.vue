@@ -6,26 +6,26 @@
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
 import {
-NBodyEntity,
-type INBodyEntityOptions
+  NBodyEntity,
+  type INBodyEntityOptions
 } from "@/lib/renderer/entitys/nbody.entity";
 import { View } from "@/lib/renderer/view";
 import { randomFromRange, randomIntFromRange } from "@/lib/util/random";
-import { default as themeColors } from "@/styles/theme.colors.mjs";
+import themeColors from "@/styles/themeColors";
 import NBodyDatGUI from "@/views/projects/three/NBodyDatGUI.vue";
 import RAPIER, {
-RigidBody,
-RigidBodyDesc,
-RigidBodyType,
-World
+  RigidBody,
+  RigidBodyDesc,
+  RigidBodyType,
+  World
 } from "@dimforge/rapier2d-compat";
 import { toRaw } from "@vue/reactivity";
 import {
-Color,
-Scene,
-Vector2,
-Vector3,
-type ColorRepresentation
+  Color,
+  Scene,
+  Vector2,
+  Vector3,
+  type ColorRepresentation
 } from "three";
 import { Options, Vue } from "vue-class-component";
 
@@ -46,23 +46,23 @@ export default class NBody extends Vue {
     angularVelocity: number;
     color: ColorRepresentation;
   }[] = [
-    {
-      origin: new Vector3(-380400, 0),
-      mass: 7.34767309 * 10 ** 22,
-      radius: 1737.4,
-      linearVelocity: new Vector3(0, 2500),
-      angularVelocity: 0,
-      color: themeColors.primary["100"],
-    },
-    {
-      origin: new Vector3(0, 0),
-      mass: 5.972 * 10 ** 24,
-      radius: 6371,
-      linearVelocity: new Vector3(0, 100),
-      angularVelocity: 0,
-      color: themeColors.primary["100"],
-    },
-  ];
+      {
+        origin: new Vector3(-380400, 0),
+        mass: 7.34767309 * 10 ** 22,
+        radius: 1737.4,
+        linearVelocity: new Vector3(0, 2500),
+        angularVelocity: 0,
+        color: themeColors.primary["100"],
+      },
+      {
+        origin: new Vector3(0, 0),
+        mass: 5.972 * 10 ** 24,
+        radius: 6371,
+        linearVelocity: new Vector3(0, 100),
+        angularVelocity: 0,
+        color: themeColors.primary["100"],
+      },
+    ];
   physicsWorld!: World;
 
   created(): void {
@@ -171,4 +171,5 @@ export default class NBody extends Vue {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+</style>

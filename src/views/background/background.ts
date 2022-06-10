@@ -1,8 +1,7 @@
-import { default as themeColors } from "@/styles/theme.colors.mjs";
+
+import themeColors from "@/styles/themeColors";
 import type { ColorRepresentation } from "three";
 import type { BirdConfig } from "wasm-lib";
-
-console.log(themeColors);
 
 export interface IBirdConfig {
   id: string;

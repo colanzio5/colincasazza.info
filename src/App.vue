@@ -1,27 +1,3 @@
-<template>
-  <div class="app-wrapper">
-    <div class="w-full h-full relative">
-      <RendererRootViewPortComponent class="z-10" />
-      <div v-if="isAppReady">
-        <FlockBackground class="absolute w-full h-full" />
-        <div class="absolute w-full h-full flex flex-col z-30 p-4 pb-16">
-          <NavBar />
-          <router-view />
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-<style lang="postcss">
-html,
-body {
-  background: black;
-}
-.app-wrapper {
-  @apply w-screen h-screen overflow-hidden;
-}
-</style>
 
 <script lang="ts">
 import RendererRootViewPortComponent from "@/components/renderer/RendererRootViewPortComponent.vue";
@@ -47,3 +23,29 @@ export default class App extends Vue {
   }
 }
 </script>
+
+<template>
+  <div class="app-wrapper">
+    <div class="w-full h-full relative">
+      <RendererRootViewPortComponent class="z-10" />
+      <div v-if="isAppReady">
+        <FlockBackground class="absolute w-full h-full" />
+        <div class="absolute w-full h-full flex flex-col z-30 p-4 pb-16">
+          <NavBar />
+          <router-view />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style lang="postcss">
+html,
+body {
+  background: black;
+}
+.app-wrapper {
+  @apply w-screen h-screen overflow-hidden;
+}
+</style>
+

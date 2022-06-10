@@ -22,7 +22,7 @@ import {
 
 import * as THREE from "three";
 import { Options, Vue } from "vue-class-component";
-import { default as themeColors } from "@/styles/theme.colors.mjs";
+import themeColors from "@/styles/themeColors";
 
 const vertexShader = `
 varying vec2 vUv;

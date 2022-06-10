@@ -1,100 +1,26 @@
-/* ./src/index.css */
 @tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-.color-primary-0 {
-  color: #990033;
-} /* Main Primary color */
-.color-primary-1 {
-  color: #e1004c;
-}
-.color-primary-2 {
-  color: #bb003f;
-}
-.color-primary-3 {
-  color: #750027;
-}
-.color-primary-4 {
-  color: #480018;
-}
-
-.color-secondary-1-0 {
-  color: #ad4a00;
-} /* Main Secondary color (1) */
-.color-secondary-1-1 {
-  color: #ff6c00;
-}
-.color-secondary-1-2 {
-  color: #d35a00;
-}
-.color-secondary-1-3 {
-  color: #853800;
-}
-.color-secondary-1-4 {
-  color: #522300;
-}
-
-.color-secondary-2-0 {
-  color: #006c60;
-} /* Main Secondary color (2) */
-.color-secondary-2-1 {
-  color: #009f8e;
-}
-.color-secondary-2-2 {
-  color: #008375;
-}
-.color-secondary-2-3 {
-  color: #00524a;
-}
-.color-secondary-2-4 {
-  color: #00332e;
-}
-
-.color-complement-0 {
-  color: #4c9c00;
-} /* Main Complement color */
-.color-complement-1 {
-  color: #70e500;
-}
-.color-complement-2 {
-  color: #5dbe00;
-}
-.color-complement-3 {
-  color: #3a7700;
-}
-.color-complement-4 {
-  color: #244a00;
-}
-
-.link {
-  @apply text-primary-100 hover:text-highlight-100 hover:cursor-pointer select-text;
-}
-
-::selection {
-  @apply text-highlight-200; /* WebKit/Blink Browsers */
-}
-::-moz-selection {
-  @apply text-highlight-200 /* Gecko Browsers */;
-}
-
-/** mobile scroll bar enabled on desktop */
-::-webkit-scrollbar {
-  width: 1px;
-  height: 1px;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  @apply bg-primary-200;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-secondary-200;
+@layer base {
+  .link {
+    @apply text-primary-100 hover:text-highlight-100 hover:cursor-pointer select-text;
+  }
+  ::selection {
+    @apply text-highlight-200;
+  }
+  ::-moz-selection {
+    @apply text-highlight-200;
+  }
+  ::-webkit-scrollbar {
+    width: 1px;
+    height: 1px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary-200;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-secondary-200;
+  }
 }

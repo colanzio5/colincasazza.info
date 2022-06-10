@@ -1,4 +1,4 @@
-declare module "@/styles/theme.colors.mjs" {
+declare module "@/styles/theme.js" {
   export default {
     primary: {
       "50": number,
