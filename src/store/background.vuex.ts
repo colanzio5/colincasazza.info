@@ -1,8 +1,4 @@
 import {
-  selectRandomFromWeightedArray,
-  type IWeightedArray
-} from "@/lib/util/random";
-import {
   backgroundBirdConfigs,
   MAX_FLOCK_SIZE,
   type IBirdConfig
@@ -11,13 +7,15 @@ import { Color } from "three";
 import { action, createModule } from "vuex-class-component";
 import init, { BirdConfig, Flock } from "wasm-lib";
 
+const { select } = require("weighted-array");
+
 const VuexModule = createModule({
   namespaced: "background",
   strict: false,
 });
 
 export default class BackgroundStore extends VuexModule {
-  public birdConfigs: IWeightedArray<IBirdConfig> = [];
+  public birdConfigs: IBirdConfig[] = [];
   public isDragging = false;
   public isLoaded = false;
   public updating = false;
@@ -26,10 +24,11 @@ export default class BackgroundStore extends VuexModule {
   public $subscribeAction: any;
 
   private _maxFlockSize: number = MAX_FLOCK_SIZE;
-  private _flock!: Flock;
+  private _flock?: Flock;
 
   get currentFlockSize(): number {
-    return this._flock.get_current_flock_size() || 0;
+    if (!this._flock) return 0;
+    return this._flock.get_current_flock_size();
   }
 
   get maxFlockSize(): number {
@@ -37,25 +36,35 @@ export default class BackgroundStore extends VuexModule {
   }
 
   set maxFlockSize(_maxFlockSize: number) {
-    this._flock.set_max_flock_size(_maxFlockSize);
+    if (this._flock) this._flock.set_max_flock_size(_maxFlockSize);
     this._maxFlockSize = _maxFlockSize;
   }
 
   @action async removeBirdConfig(configIdToRemove: string) {
+    if (!this._flock)
+      throw new Error(
+        "[background.vuex] cannot remove config, flock doesn't exist."
+      );
     this.birdConfigs = this.birdConfigs.filter(
-      (config) => config.id != configIdToRemove
+      (config) => config.id !== configIdToRemove
     );
     this._flock.remove_bird_config(configIdToRemove);
   }
 
   @action async addBirdConfig(birdConfig: IBirdConfig): Promise<void> {
+    if (!this._flock)
+      throw new Error(
+        "[background.vuex] cannot add config, flock doesn't exist."
+      );
     const config = await this.generateWASMBirdConfig(birdConfig);
     this.birdConfigs.push(birdConfig);
     this._flock.add_bird_config(birdConfig.id, config);
   }
 
   @action async initFlock(): Promise<void> {
+    console.log("init called 1")
     if (this.isLoaded || this.updating) return;
+    console.log("init called 2")
     this.updating = true;
     await init();
     this._flock = Flock.new(
@@ -70,6 +79,13 @@ export default class BackgroundStore extends VuexModule {
     }
     this.updating = false;
     this.isLoaded = true;
+    console.log("init called 3")
+  }
+
+  @action async unmounted() {
+    if (!this._flock) return;
+    this._flock.free();
+    this.birdConfigs.forEach((birdConfig) => birdConfig.wasmObject?.free());
   }
 
   @action async updateFlock(props: {
@@ -81,6 +97,7 @@ export default class BackgroundStore extends VuexModule {
       colors: Float32Array
     ) => void;
   }) {
+    if (!this._flock) return;
     this._flock.update(
       props.sceneWidth,
       props.sceneHeight,
@@ -93,7 +110,11 @@ export default class BackgroundStore extends VuexModule {
     viewWidth: number;
     viewHeight: number;
   }): Promise<void> {
-    const config = selectRandomFromWeightedArray(this.birdConfigs);
+    if (!this._flock)
+      throw new Error(
+        "[background.vuex] cannot add bird at random position, flock doesn't exist."
+      );
+    const config = select(this.birdConfigs);
     this._flock.add_bird_at_random_position(
       config.id,
       props.viewWidth,
@@ -105,13 +126,21 @@ export default class BackgroundStore extends VuexModule {
     x: number;
     y: number;
   }): Promise<void> {
-    const config = selectRandomFromWeightedArray(this.birdConfigs);
+    if (!this._flock)
+      throw new Error(
+        "[background.vuex] cannot add bird at position, flock doesn't exist."
+      );
+    const config = select(this.birdConfigs);
     this._flock.add_bird(config.id, props.x, props.y);
   }
 
   @action async updateBirdConfig(
     updatedBirdConfig: IBirdConfig
   ): Promise<void> {
+    if (!this._flock)
+      throw new Error(
+        "[background.vuex] cannot update bird config, flock doesn't exist."
+      );
     const config = await this.generateWASMBirdConfig(updatedBirdConfig);
     this.birdConfigs = this.birdConfigs.filter(
       (birdConfig) => birdConfig.id !== updatedBirdConfig.id
@@ -126,11 +155,10 @@ export default class BackgroundStore extends VuexModule {
   @action async generateWASMBirdConfig(
     birdConfig: IBirdConfig
   ): Promise<BirdConfig> {
-    console.log(birdConfig);
     const color = new Color(birdConfig.birdColor);
     const config = BirdConfig.new(
       birdConfig.id,
-      birdConfig.probability,
+      birdConfig.weight,
       birdConfig.neighborDistance,
       birdConfig.desiredSeparation,
       birdConfig.separationMultiplier,

@@ -1,5 +1,5 @@
 import { RenderLoop } from "@/lib/renderer/renderLoop";
-import { View } from "@/lib/renderer/view";
+import type { View } from "@/lib/renderer/view";
 import { RendererRootViewPort } from "@/lib/renderer/viewPort";
 import { vxm } from "@/store";
 import { WebGLRenderer } from "three";

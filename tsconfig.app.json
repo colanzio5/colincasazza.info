@@ -3,13 +3,12 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "wasm-lib/pkg/**/*.*", "src/styles/theme.js"],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
-    "target": "ES6",
-    "module": "ES6",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "wasm-lib": ["./src/wasm-lib/pkg/*"]
     },
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "types": ["node"]
   }
 }

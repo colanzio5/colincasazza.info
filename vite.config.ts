@@ -14,11 +14,7 @@ export default defineConfig({
     },
   },
   build: {
-    target: "ES6",
+    target: "esnext",
     manifest: true,
-
-    // commonjsOptions: {
-    //   transformMixedEsModules: true,
-    // },
   }
 });

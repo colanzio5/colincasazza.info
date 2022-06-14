@@ -45,3 +45,5 @@ declare module "vue/types/vue" {
     ): void;
   }
 }
+
+declare module 'weighted-array';

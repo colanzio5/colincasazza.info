@@ -2,7 +2,7 @@
 
 @layer base {
   .link {
-    @apply text-primary-100 hover:text-highlight-100 hover:cursor-pointer select-text;
+    @apply text-primary-500 hover:text-highlight-500 hover:cursor-pointer select-text underline underline-offset-1;
   }
   ::selection {
     @apply text-highlight-200;

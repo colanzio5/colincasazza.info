@@ -5,7 +5,7 @@ import type { BirdConfig } from "wasm-lib";
 
 export interface IBirdConfig {
   id: string;
-  probability: number;
+  weight: number;
   neighborDistance: number;
   desiredSeparation: number;
   separationMultiplier: number;
@@ -18,10 +18,11 @@ export interface IBirdConfig {
   wasmObject?: BirdConfig;
 }
 
+export const DEFAULT_BIRD_ID = "default";
 export const backgroundBirdConfigs: IBirdConfig[] = [
   {
-    id: "default",
-    probability: -1,
+    id: DEFAULT_BIRD_ID,
+    weight: 100,
     neighborDistance: 200,
     desiredSeparation: 50,
     separationMultiplier: 1.7,
@@ -30,11 +31,11 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     maxSpeed: 2,
     maxForce: 0.01,
     birdSize: 10,
-    birdColor: themeColors.primary[800],
+    birdColor: themeColors.secondary[500],
   },
   {
     id: "black_sheep",
-    probability: 1 / 100,
+    weight: 1,
     neighborDistance: 200,
     desiredSeparation: 50,
     separationMultiplier: 1.7,
@@ -43,9 +44,9 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     maxSpeed: 2,
     maxForce: 0.01,
     birdSize: 15,
-    birdColor: themeColors.primary[800],
+    birdColor: themeColors.primary[500],
   },
 ];
 
 // todo: choose flock size based on screen size
-export const MAX_FLOCK_SIZE = 2000;
+export const MAX_FLOCK_SIZE = 500;

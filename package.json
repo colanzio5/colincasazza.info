@@ -38,7 +38,8 @@
     "vue-router": "^4.0.15",
     "vue3-touch-events": "^4.1.0",
     "vuex": "^4.0.2",
-    "vuex-class-component": "^2.3.6"
+    "vuex-class-component": "^2.3.6",
+    "weighted-array": "^0.2.0"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "^1.0.3",

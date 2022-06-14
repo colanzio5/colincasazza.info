@@ -14,8 +14,12 @@ import FlockBackground from "./views/background/FlockBackground.vue";
   },
 })
 export default class App extends Vue {
-  get isAppReady(): boolean {
+  get isAppLoaded(): boolean {
     return vxm.renderer.rendererRootViewPort.isMounted;
+  }
+
+  get isBackgroundLoaded(): boolean {
+    return vxm.background.isLoaded
   }
 
   mounted(): void {
@@ -28,9 +32,9 @@ export default class App extends Vue {
   <div class="app-wrapper">
     <div class="w-full h-full relative">
       <RendererRootViewPortComponent class="z-10" />
-      <div v-if="isAppReady">
+      <div v-if="isAppLoaded">
         <FlockBackground class="absolute w-full h-full" />
-        <div class="absolute w-full h-full flex flex-col z-30 p-4 pb-16">
+        <div v-if="isBackgroundLoaded" class="absolute w-full h-full flex flex-col z-30 p-4 pb-16">
           <NavBar />
           <router-view />
         </div>
@@ -44,6 +48,7 @@ html,
 body {
   background: black;
 }
+
 .app-wrapper {
   @apply w-screen h-screen overflow-hidden;
 }

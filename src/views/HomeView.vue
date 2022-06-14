@@ -21,41 +21,41 @@
     </div>
 
     <div class="text-4xl text-secondary-400">experience</div>
-    <div class="text-xl mb-4">
+    <div class="mb-4">
       <div class="text-highlight-400 text-lg">qualcomm</div>
-      <div class="text-lg pb-1">
+      <div class="pb-1">
         october 2021 - current - cloud tools software engineer
       </div>
-      <div class="text-lg pb-1">
+      <div class="pb-1">
         march 2020 - october 2021 - it engineer, programmer analyst, site
         reliability engineer
       </div>
-      <div class="text-lg pb-1">
+      <div class="pb-1">
         may 2018 - sep 2018 - it engineering intern
       </div>
 
       <div class="text-highlight-400 text-lg">voyager space technologies</div>
-      <div class="text-lg pb-1">
+      <div class="pb-1">
         jul 2018 - aug 2019 - full stack software engineer
       </div>
 
       <div class="text-highlight-400 text-lg">sdsu rocket project</div>
-      <div class="text-lg pb-1">
+      <div class="pb-1">
         sep 2015 - jan 2018 - avionics systems engineer
       </div>
 
       <div class="text-highlight-400 text-lg">freelance developer</div>
-      <div class="text-lg pb-1">
+      <div class="pb-1">
         jun 2017 - jan 2018 - full stack web developer
       </div>
 
       <div class="text-highlight-400 text-lg">san diego state university</div>
-      <div class="text-lg pb-1">
+      <div class="pb-1">
         sep 2015 - dec 2019 - bachelor’s degree in computer science
       </div>
     </div>
-    <router-link class="select-text cursor-pointer" to="/projects/three/flock">
-      <div class="link text-xs">like the background? click here</div>
+    <router-link class="link" to="/projects/three/flock">
+      like the background? click here 
     </router-link>
   </div>
 </template>
@@ -69,5 +69,5 @@
 <script lang="ts">
 import { Vue } from "vue-class-component";
 
-export default class HomeView extends Vue {}
+export default class HomeView extends Vue { }
 </script>

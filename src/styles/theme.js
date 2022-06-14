@@ -64,8 +64,8 @@ var colors = [
 ];
 
 module.exports = {
-  primary: colors[0].turquoise,
-  secondary: colors[0].coral,
+  primary: colors[0].coral,
+  secondary: colors[0].turquoise,
   highlight: colors[0].gold,
   compliment: colors[0].navy
 };
