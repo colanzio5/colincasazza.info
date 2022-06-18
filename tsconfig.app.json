@@ -6,8 +6,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "wasm-lib": ["./src/wasm-lib/pkg/*"]
+      "wasm-lib": ["./src/wasm-lib/pkg/*"],
     },
+    "target": "esnext",
     "experimentalDecorators": true,
     "types": ["node"]
   }

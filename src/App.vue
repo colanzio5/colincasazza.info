@@ -1,7 +1,7 @@
-
 <script lang="ts">
 import RendererRootViewPortComponent from "@/components/renderer/RendererRootViewPortComponent.vue";
 import NavBar from "@/views/NavBar.vue";
+import Footer from "@/views/Footer.vue";
 import { Options, Vue } from "vue-class-component";
 import { vxm } from "./store";
 import FlockBackground from "./views/background/FlockBackground.vue";
@@ -11,6 +11,7 @@ import FlockBackground from "./views/background/FlockBackground.vue";
     FlockBackground,
     RendererRootViewPortComponent,
     NavBar,
+    Footer,
   },
 })
 export default class App extends Vue {
@@ -19,7 +20,7 @@ export default class App extends Vue {
   }
 
   get isBackgroundLoaded(): boolean {
-    return vxm.background.isLoaded
+    return vxm.background.isLoaded;
   }
 
   mounted(): void {
@@ -34,9 +35,13 @@ export default class App extends Vue {
       <RendererRootViewPortComponent class="z-10" />
       <div v-if="isAppLoaded">
         <FlockBackground class="absolute w-full h-full" />
-        <div v-if="isBackgroundLoaded" class="absolute w-full h-full flex flex-col z-30 p-4 pb-16">
+        <div
+          v-if="isBackgroundLoaded"
+          class="absolute w-full h-full flex flex-col z-30 p-4"
+        >
           <NavBar />
           <router-view />
+          <Footer></Footer>
         </div>
       </div>
     </div>
@@ -53,4 +58,3 @@ body {
   @apply w-screen h-screen overflow-hidden;
 }
 </style>
-

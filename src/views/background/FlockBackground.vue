@@ -1,4 +1,3 @@
-
 <template>
   <ViewPortComponent :view="view" />
 </template>
@@ -14,7 +13,7 @@ import {
   Color,
   LineBasicMaterial,
   LineSegments,
-  Vector3
+  Vector3,
 } from "three";
 import { lerp } from "three/src/math/MathUtils";
 import { Options, Vue } from "vue-class-component";
@@ -32,7 +31,7 @@ export default class FlockBackground extends Vue {
   birdsMaterial: any;
   birdsLine: any;
 
-  async created() {
+  created() {
     this.view = new View({
       cameraOptions: {
         fov: 75,
@@ -54,12 +53,10 @@ export default class FlockBackground extends Vue {
     });
     this.birdsLine = new LineSegments(this.birdsGeometry, this.birdsMaterial);
     this.view.scene.add(this.birdsLine);
-    console.log("flock background created 1")
-    await vxm.background.initFlock();
-    console.log("flock background created 2")
   }
 
   async mounted() {
+    await vxm.background.initFlock();
     window.addEventListener("touchstart", throttle(this.touchDrag, 10), false);
     window.addEventListener("touchmove", throttle(this.touchDrag, 10), false);
     window.addEventListener(
@@ -77,12 +74,11 @@ export default class FlockBackground extends Vue {
     this.addBirdsToFlockInterval = window.setInterval(async () => {
       if (vxm.background.currentFlockSize >= vxm.background.maxFlockSize)
         clearInterval(this.addBirdsToFlockInterval as NodeJS.Timer);
-      await vxm.background.addBirdAtRandomPosition({
+      vxm.background.addBirdAtRandomPosition({
         viewWidth: this.view.visibleWidthAtZDepth,
         viewHeight: this.view.visibleHeightAtZDepth,
       });
     }, 25);
-    console.log("done")
   }
 
   unmounted() {
@@ -123,7 +119,7 @@ export default class FlockBackground extends Vue {
     vxm.background.updateFlock({
       sceneWidth: this.view.visibleWidthAtZDepth,
       sceneHeight: this.view.visibleHeightAtZDepth,
-      timeStep: 2,
+      timeStep: 1,
       updateFlockGeometryCallback: this.updateFlockGeometry,
     });
   }

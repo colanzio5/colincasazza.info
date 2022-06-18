@@ -8,7 +8,7 @@ import { truncate } from "@/lib/util/numbers";
 import {
   generateRandomColor,
   randomFromRange,
-  randomIntFromRange
+  randomIntFromRange,
 } from "@/lib/util/random";
 import { vxm } from "@/store";
 import { GUI } from "dat.gui";
@@ -16,7 +16,6 @@ import { generateUUID } from "three/src/math/MathUtils";
 import { Vue } from "vue-class-component";
 import type { IBirdConfig } from "./background";
 import { DEFAULT_BIRD_ID } from "./background";
-
 
 export default class BackgroundDebug extends Vue {
   gui: GUI = new GUI({ autoPlace: false, closeOnTop: true });
@@ -27,14 +26,12 @@ export default class BackgroundDebug extends Vue {
   }
 
   get birdsFolder(): GUI {
-    return this.gui.__folders["birds"]
+    return this.gui.__folders["birds"];
   }
 
   get globalsFloder(): GUI {
-    return this.gui.__folders["globals"]
+    return this.gui.__folders["globals"];
   }
-
-
 
   async mounted() {
     await vxm.background.$subscribeAction("initFlock", {
@@ -60,9 +57,9 @@ export default class BackgroundDebug extends Vue {
       .min(1)
       .max(2000)
       .name("max flock size");
-    this.globalsFloder.open()
+    this.globalsFloder.open();
     // console.log([...await vxm.background.birdConfigs])
-    await vxm.background.birdConfigs.forEach(this.addBirdConfigToGui)
+    await vxm.background.birdConfigs.forEach(this.addBirdConfigToGui);
     // console.log("done2")
   }
 
@@ -91,7 +88,7 @@ export default class BackgroundDebug extends Vue {
   }
 
   async removeBirdConfigFromGui(birdConfigIdToRemove: string) {
-    this.gui.__folders[birdConfigIdToRemove].destroy()
+    this.gui.__folders[birdConfigIdToRemove].destroy();
     await vxm.background.removeBirdConfig.bind(birdConfigIdToRemove);
   }
 
@@ -103,10 +100,15 @@ export default class BackgroundDebug extends Vue {
     birdFolder
       .addColor(configToAdd, "birdColor")
       .setValue(configToAdd.birdColor)
-      .domElement.inputMode = "none"; // disable keyboard inputs
-    birdFolder.add(configToAdd, "weight").step(1).min(0);
+      .onFinishChange(async (updatedColor) => {
+        await vxm.background.updateBirdConfig({
+          ...configToAdd,
+          birdColor: updatedColor,
+        });
+      }).domElement.inputMode = "none"; // disable keyboard inputs
     // attributes w/o options
     [
+      "weight",
       "neighborDistance",
       "desiredSeparation",
       "separationMultiplier",
@@ -116,23 +118,26 @@ export default class BackgroundDebug extends Vue {
       "maxForce",
       "birdSize",
     ].forEach((attr) => {
-      birdFolder
-        .add(configToAdd, attr)
-        .onFinishChange(async updatedValue => {
-          await vxm.background.updateBirdConfig({ ...configToAdd, [attr]: updatedValue })
+      birdFolder.add(configToAdd, attr).onFinishChange(async (updatedValue) => {
+        await vxm.background.updateBirdConfig({
+          ...configToAdd,
+          [attr]: updatedValue,
         });
+      });
     });
 
     this.birdsFolder.open();
     if (configToAdd.id !== DEFAULT_BIRD_ID) {
       birdFolder
         .add(
-          { "-": (configToAdd: IBirdConfig) => this.removeBirdConfigFromGui(configToAdd.id) },
+          {
+            "-": (configToAdd: IBirdConfig) =>
+              this.removeBirdConfigFromGui(configToAdd.id),
+          },
           "-"
         )
         .name("(-) remove species");
     }
-
   }
 }
 </script>

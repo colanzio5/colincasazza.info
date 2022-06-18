@@ -1,7 +1,7 @@
 import {
   backgroundBirdConfigs,
   MAX_FLOCK_SIZE,
-  type IBirdConfig
+  type IBirdConfig,
 } from "@/views/background/background";
 import { Color } from "three";
 import { action, createModule } from "vuex-class-component";
@@ -62,9 +62,7 @@ export default class BackgroundStore extends VuexModule {
   }
 
   @action async initFlock(): Promise<void> {
-    console.log("init called 1")
     if (this.isLoaded || this.updating) return;
-    console.log("init called 2")
     this.updating = true;
     await init();
     this._flock = Flock.new(
@@ -79,7 +77,6 @@ export default class BackgroundStore extends VuexModule {
     }
     this.updating = false;
     this.isLoaded = true;
-    console.log("init called 3")
   }
 
   @action async unmounted() {
@@ -110,10 +107,7 @@ export default class BackgroundStore extends VuexModule {
     viewWidth: number;
     viewHeight: number;
   }): Promise<void> {
-    if (!this._flock)
-      throw new Error(
-        "[background.vuex] cannot add bird at random position, flock doesn't exist."
-      );
+    if (!this._flock) return;
     const config = select(this.birdConfigs);
     this._flock.add_bird_at_random_position(
       config.id,
@@ -126,10 +120,7 @@ export default class BackgroundStore extends VuexModule {
     x: number;
     y: number;
   }): Promise<void> {
-    if (!this._flock)
-      throw new Error(
-        "[background.vuex] cannot add bird at position, flock doesn't exist."
-      );
+    if (!this._flock) return;
     const config = select(this.birdConfigs);
     this._flock.add_bird(config.id, props.x, props.y);
   }

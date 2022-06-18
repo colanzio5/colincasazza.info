@@ -30,8 +30,8 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     cohesionMultiplier: 0.01,
     maxSpeed: 2,
     maxForce: 0.01,
-    birdSize: 10,
-    birdColor: themeColors.secondary[500],
+    birdSize: 6,
+    birdColor: themeColors.primary[500],
   },
   {
     id: "black_sheep",
@@ -43,8 +43,8 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     cohesionMultiplier: 0.01,
     maxSpeed: 2,
     maxForce: 0.01,
-    birdSize: 15,
-    birdColor: themeColors.primary[500],
+    birdSize: 12,
+    birdColor: themeColors.secondary[500],
   },
 ];
 

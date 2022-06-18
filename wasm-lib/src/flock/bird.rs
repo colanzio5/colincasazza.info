@@ -138,17 +138,41 @@ impl Bird {
             Vector2::new(-angle.sin(), angle.cos()),
         ]);
 
-        let q = bird_config.bird_size / (2. * (PI / 6.).acos());
-        let r = (PI / 6.).tan() * (bird_config.bird_size / 2.);
+        // let q = bird_config.bird_size / (2. * (PI / 6.).acos());
+        // let r = (PI / 6.).tan() * (bird_config.bird_size / 2.);
 
+        let R = bird_config.bird_size / ((3 as f32).sqrt());    
+        let a = Vector2::new(
+            R * angle.cos(), R * angle.sin()
+        );
+        let b = Vector2::new(
+            R * (angle + ((4. * PI)/3.)).cos(),
+            R * (angle + ((4. * PI)/3.)).sin()
+        );
+        let c = Vector2::new(
+            R * (angle + ((2. * PI)/3.)).cos(),
+            R * (angle + ((2. * PI)/3.)).sin()
+        );
         [
-            Vector2::new(0., q * 2.),
-            Vector2::new(-bird_config.bird_size / 2., -r),
-            Vector2::new(bird_config.bird_size / 2., -r),
-            Vector2::new(0., q * 2.),
+            a, b,
+            b, c,
+            c, a
         ]
-        .map(|e| rot_matrix * e)
         .map(|e| e + self.position)
         .to_vec()
+        // pairs of vertices represent lines
+        // [
+        //     Vector2::new(0., q * 2.),
+        //     Vector2::new(-bird_config.bird_size / 2., -r),
+            
+        //     Vector2::new(bird_config.bird_size / 2., r),
+        //     Vector2::new(0., q * 2.),
+
+        //     Vector2::new(-bird_config.bird_size / 2., -r),
+        //     Vector2::new(-bird_config.bird_size / 2., r),
+        // ]
+        // .map(|e| rot_matrix * e)
+        // .map(|e| e + self.position)
+        // .to_vec()
     }
 }
