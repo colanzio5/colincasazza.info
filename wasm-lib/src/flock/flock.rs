@@ -101,7 +101,6 @@ impl Flock {
         // if too many birds, remove randomly untill in size
         if max_flock_size < self.birds.len() {
             let mut new_birds = self.birds.to_vec();
-            log(&format!("cur: {}, new: {}, num to remove: {} ", self.birds.len(), max_flock_size, new_birds.len() - max_flock_size));
             for _ in 0..new_birds.len() - max_flock_size {
                 let idx = self.rng.rand_range(0..(new_birds.len()) as u32);
                 new_birds.remove(idx as usize);

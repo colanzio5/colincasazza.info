@@ -58,9 +58,7 @@ export default class BackgroundDebug extends Vue {
       .max(2000)
       .name("max flock size");
     this.globalsFloder.open();
-    // console.log([...await vxm.background.birdConfigs])
     await vxm.background.birdConfigs.forEach(this.addBirdConfigToGui);
-    // console.log("done2")
   }
 
   unmounted() {
@@ -94,8 +92,6 @@ export default class BackgroundDebug extends Vue {
 
   addBirdConfigToGui(configToAdd: IBirdConfig) {
     const birdFolder = this.birdsFolder.addFolder(configToAdd.id);
-    // console.log(this.birdsFolder);
-    // console.log(birdFolder);
     birdFolder.name = truncate(configToAdd.id, 25);
     birdFolder
       .addColor(configToAdd, "birdColor")

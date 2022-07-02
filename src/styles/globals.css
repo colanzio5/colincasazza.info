@@ -2,13 +2,13 @@
 
 @layer base {
   .link {
-    @apply text-highlight-400 hover:text-compliment-400 hover:cursor-pointer select-text underline underline-offset-1;
+    @apply text-highlight-200 hover:text-compliment-400 hover:cursor-pointer select-text underline underline-offset-1;
   }
   ::selection {
-    @apply text-compliment-200;
+    @apply text-secondary-500;
   }
   ::-moz-selection {
-    @apply text-compliment-200;
+    @apply text-secondary-500;
   }
   ::-webkit-scrollbar {
     width: 1px;
@@ -27,9 +27,9 @@
 
 @layer base {
   .app-heading {
-    @apply text-secondary-400 text-xl;
+    @apply text-compliment-400 text-xl;
   }
   .app-title {
-    @apply text-primary-500 text-4xl;
+    @apply text-secondary-400 text-4xl;
   }
 }

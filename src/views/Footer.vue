@@ -1,16 +1,10 @@
 <script lang="ts">
-import { vxm } from "@/store";
 import { Options, Vue } from "vue-class-component";
 
 @Options({
   inheritAttrs: false,
 })
-export default class Footer extends Vue {
-
-  mounted() {
-    console.log(this.$route.name);
-  }
-}
+export default class Footer extends Vue {}
 </script>
 
 <style lang="postcss">
