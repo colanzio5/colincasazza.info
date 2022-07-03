@@ -7,7 +7,7 @@
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
 import {
   NBodyEntity,
-  type INBodyEntityOptions
+  type INBodyEntityOptions,
 } from "@/lib/renderer/entitys/nbody.entity";
 import { View } from "@/lib/renderer/view";
 import { randomFromRange, randomIntFromRange } from "@/lib/util/random";
@@ -17,7 +17,7 @@ import RAPIER, {
   RigidBody,
   RigidBodyDesc,
   RigidBodyType,
-  World
+  World,
 } from "@dimforge/rapier2d-compat";
 import { toRaw } from "@vue/reactivity";
 import {
@@ -25,7 +25,7 @@ import {
   Scene,
   Vector2,
   Vector3,
-  type ColorRepresentation
+  type ColorRepresentation,
 } from "three";
 import { Options, Vue } from "vue-class-component";
 
@@ -46,23 +46,23 @@ export default class NBody extends Vue {
     angularVelocity: number;
     color: ColorRepresentation;
   }[] = [
-      {
-        origin: new Vector3(-380400, 0),
-        mass: 7.34767309 * 10 ** 22,
-        radius: 1737.4,
-        linearVelocity: new Vector3(0, 2500),
-        angularVelocity: 0,
-        color: themeColors.primary["100"],
-      },
-      {
-        origin: new Vector3(0, 0),
-        mass: 5.972 * 10 ** 24,
-        radius: 6371,
-        linearVelocity: new Vector3(0, 100),
-        angularVelocity: 0,
-        color: themeColors.primary["100"],
-      },
-    ];
+    {
+      origin: new Vector3(-380400, 0),
+      mass: 7.34767309 * 10 ** 22,
+      radius: 1737.4,
+      linearVelocity: new Vector3(0, 2500),
+      angularVelocity: 0,
+      color: themeColors.primary["100"],
+    },
+    {
+      origin: new Vector3(0, 0),
+      mass: 5.972 * 10 ** 24,
+      radius: 6371,
+      linearVelocity: new Vector3(0, 100),
+      angularVelocity: 0,
+      color: themeColors.primary["100"],
+    },
+  ];
   physicsWorld!: World;
 
   created(): void {
@@ -165,11 +165,10 @@ export default class NBody extends Vue {
         (previous: Vector2, current: Vector2) => previous.add(current),
         new Vector2()
       );
-      rigidBody.applyForce(fGNet, true);
+      rigidBody.addForce(fGNet, true);
     }
   }
 }
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

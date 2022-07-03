@@ -4,7 +4,7 @@
   "scripts": {
     "build:wasm": "wasm-pack build wasm-lib -t web",
     "build:ts": "vue-tsc --noEmit && vite build",
-    "deploy": "npm run build && firebase deploy",
+    "deploy": "npm run build:ts && firebase deploy",
     "dev": "vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview --port 4173",

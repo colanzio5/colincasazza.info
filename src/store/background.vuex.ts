@@ -6,8 +6,9 @@ import {
 import { Color } from "three";
 import { action, createModule } from "vuex-class-component";
 import init, { BirdConfig, Flock } from "wasm-lib";
+import * as WeightedArray from "weighted-array";
 
-const { select } = require("weighted-array");
+const { select } = WeightedArray;
 
 const VuexModule = createModule({
   namespaced: "background",

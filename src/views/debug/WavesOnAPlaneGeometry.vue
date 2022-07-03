@@ -5,6 +5,7 @@
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
 import { View } from "@/lib/renderer/view";
+import themeColors from "@/styles/themeColors";
 import {
   BufferAttribute,
   Color,
@@ -32,9 +33,9 @@ export default class WavesOnAPlaneGeometry extends Vue {
   plane!: Mesh;
   scrollIdx = 0;
   throttle = 0;
-  last: number = 0;
-  hz: number = 1
-  inc: number = 5;
+  last = 0;
+  hz = 1;
+  inc = 5;
 
   created(): void {
     this.view = new View({
@@ -80,7 +81,7 @@ export default class WavesOnAPlaneGeometry extends Vue {
   renderTickCallback(view: View, timeStepMS: number): void {
     const current = this.geometry.getAttribute("position");
     if (!current) return;
-    if ((this.last += timeStepMS) < 1/(this.hz+=0.001)) return;
+    if ((this.last += timeStepMS) < 1 / (this.hz += 0.001)) return;
     this.last = 0;
     const next = Float32Array.from(current.array);
     const row = this.scrollIdx++ % (GRID_H_DIVISIONS + 1);
@@ -88,7 +89,8 @@ export default class WavesOnAPlaneGeometry extends Vue {
     const start = row * itemsPerRow;
     const end = start + itemsPerRow - 1;
     for (let i = start; i <= end; i++) {
-      next[i * current.itemSize + 2] = next[i * current.itemSize + 2] + this.inc;
+      next[i * current.itemSize + 2] =
+        next[i * current.itemSize + 2] + this.inc;
     }
     const prevRow = row - 1 == -1 ? GRID_H_DIVISIONS : row - 1;
     const prevStart = prevRow * itemsPerRow;

@@ -1,5 +1,5 @@
 const defaultTheme = require("tailwindcss/defaultTheme");
-const themeColors = require("./src/styles/theme.js");
+const themeColors = require("./src/styles/theme.cjs");
 
 const fontFamily = defaultTheme.fontFamily;
 fontFamily["sans"] = ["Courier New", "Roboto", "system-ui"];

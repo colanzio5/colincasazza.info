@@ -63,9 +63,12 @@ export default class EQDebug extends Vue {
   inc = 5;
 
   // audio anayzer
-  analyser: unknown;
-  uniforms: unknown;
-  renderer: unknown;
+  analyser!: AudioAnalyser;
+  uniforms!: {
+    tAudioData: {
+      value: DataTexture;
+    };
+  };
   fftSize = 128;
   listener!: AudioListener;
   audio!: THREE.Audio;
@@ -143,5 +146,4 @@ export default class EQDebug extends Vue {
 }
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

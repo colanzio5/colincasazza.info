@@ -22,7 +22,7 @@ export const DEFAULT_BIRD_ID = "default";
 export const backgroundBirdConfigs: IBirdConfig[] = [
   {
     id: DEFAULT_BIRD_ID,
-    weight: 100,
+    weight: 80,
     neighborDistance: 200,
     desiredSeparation: 50,
     separationMultiplier: 1.7,
@@ -31,7 +31,7 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     maxSpeed: 2,
     maxForce: 0.01,
     birdSize: 6,
-    birdColor: themeColors.primary[500],
+    birdColor: themeColors.compliment[500],
   },
   {
     id: "black_sheep",
@@ -44,7 +44,7 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     maxSpeed: 2,
     maxForce: 0.01,
     birdSize: 12,
-    birdColor: themeColors.secondary[500],
+    birdColor: themeColors.highlight[200],
   },
 ];
 

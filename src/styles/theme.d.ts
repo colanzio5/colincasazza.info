@@ -1,4 +1,4 @@
-declare module "@/styles/theme.js" {
+declare module "@/styles/theme.cjs" {
   export default {
     primary: {
       "50": number,

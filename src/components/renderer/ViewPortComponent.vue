@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { View } from "@/lib/renderer/view";
+import type { View } from "@/lib/renderer/view";
 import { vxm } from "@/store";
 import { Vue } from "vue-class-component";
 import { Prop } from "vue-property-decorator";
@@ -16,17 +16,15 @@ export default class ViewPort extends Vue {
   }
 
   async mounted(): Promise<void> {
-    if(!this.view) throw new Error("view was not provided to viewport.");
+    if (!this.view) throw new Error("view was not provided to viewport.");
     await vxm.renderer.addView({
       view: this.view,
       container: this.container as HTMLElement,
-    })
+    });
   }
 
   beforeUnmount() {
     vxm.renderer.removeView({ viewId: this.view.id });
   }
-
 }
 </script>
-

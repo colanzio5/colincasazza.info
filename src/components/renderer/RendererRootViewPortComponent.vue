@@ -7,9 +7,9 @@
 </template>
 
 <script lang="ts">
-import { Vue } from "vue-class-component";
 import { vxm } from "@/store";
-import RendererStore from "@/store/renderer/renderer.vuex";
+import type RendererStore from "@/store/renderer/renderer.vuex";
+import { Vue } from "vue-class-component";
 
 export default class RendererRootViewPortComponent extends Vue {
   domCanvasId = "THREE_WEBGL_RENDER_CANVAS";
@@ -28,13 +28,13 @@ export default class RendererRootViewPortComponent extends Vue {
 
   mounted(): void {
     vxm.renderer.mounted({ container: this.canvasElement });
-    window.addEventListener("resize", vxm.renderer.resize)
-    window.addEventListener("orientation_change", vxm.renderer.resize)
+    window.addEventListener("resize", vxm.renderer.resize);
+    window.addEventListener("orientation_change", vxm.renderer.resize);
   }
 
   unmounted(): void {
     window.removeEventListener("resize", vxm.renderer.resize);
-    window.removeEventListener("orientation_change", vxm.renderer.resize)
+    window.removeEventListener("orientation_change", vxm.renderer.resize);
     // remove any child components created by three in this component
     this.renderer.renderer.dispose();
     while (this.statsElement?.lastChild)

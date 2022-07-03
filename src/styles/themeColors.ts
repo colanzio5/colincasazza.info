@@ -1,3 +1,3 @@
-import * as ThemeColorsModule from "@/styles/theme.js";
+import * as ThemeColorsModule from "@/styles/theme.cjs";
 
 export default ThemeColorsModule.default;

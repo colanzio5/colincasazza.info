@@ -12,8 +12,16 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  // optimizeDeps: {
+  // include: ["./src/styles/theme.js"],
+  // exclude: ""
+  // },
   build: {
     target: "esnext",
-    manifest: true,
+      manifest: true,
+    //   commonjsOptions: {
+    //     include: ["./src/styles/theme.js"],
+    //     transformMixedEsModules: true,
+    //   },
   },
 });

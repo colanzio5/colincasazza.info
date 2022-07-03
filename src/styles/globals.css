@@ -30,6 +30,6 @@
     @apply text-compliment-400 text-xl;
   }
   .app-title {
-    @apply text-secondary-400 text-4xl;
+    @apply text-compliment-400 text-4xl;
   }
 }

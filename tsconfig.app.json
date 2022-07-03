@@ -1,6 +1,6 @@
 {
   "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "wasm-lib/pkg/**/*.*", "src/styles/theme.js"],
+  "include": ["src/env.d.ts", "src/**/*", "src/**/*.vue", "wasm-lib/pkg/**/*.*", "src/styles/theme.cjsors.js"],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
     "baseUrl": ".",
