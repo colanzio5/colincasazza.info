@@ -8,10 +8,12 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
-      - uses: jetli/wasm-pack-action@v0.3.0
+      - name: Install latest nightly
+        uses: actions-rs/toolchain@v1
         with:
-          version: '0.10.2'
-      - run: npm run build:wasm
+          toolchain: nightly
+          override: true
+          components: rustfmt
 
       - uses: actions/checkout@v2
       - run: npm ci && npm run build
