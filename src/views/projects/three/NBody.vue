@@ -45,24 +45,7 @@ export default class NBody extends Vue {
     linearVelocity: Vector3;
     angularVelocity: number;
     color: ColorRepresentation;
-  }[] = [
-    {
-      origin: new Vector3(-380400, 0),
-      mass: 7.34767309 * 10 ** 22,
-      radius: 1737.4,
-      linearVelocity: new Vector3(0, 2500),
-      angularVelocity: 0,
-      color: themeColors.primary["100"],
-    },
-    {
-      origin: new Vector3(0, 0),
-      mass: 5.972 * 10 ** 24,
-      radius: 6371,
-      linearVelocity: new Vector3(0, 100),
-      angularVelocity: 0,
-      color: themeColors.primary["100"],
-    },
-  ];
+  }[] = [];
   physicsWorld!: World;
 
   created(): void {
@@ -145,7 +128,7 @@ export default class NBody extends Vue {
     for (const body of this.nBodies) {
       const otherBodies = this.nBodies.filter((b) => b !== body);
       const { rigidBody } = body;
-      const G = 6.67 * 10 ** -16;
+      const G = 6.67 * 10 ** -11;
       const fGOtherBodies = otherBodies.map((item) => {
         const planetoidPos = new Vector2(
           rigidBody.translation().x,
