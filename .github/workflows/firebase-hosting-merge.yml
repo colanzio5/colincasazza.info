@@ -11,18 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install latest nightly
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
-          components: rustfmt
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: nightly
+        override: true
+        components: rustfmt
 
-      - uses: actions/checkout@v2
-      - run: npm ci && npm run build
-      
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_NULLSPACE }}'
-          channelId: live
-          projectId: nullspace
+    - name: Build wasm lib
+    - uses: actions/checkout@v2
+    - run: npm install -g wasm-pack && npm run build:wasm
+
+
+    - uses: actions/checkout@v2
+    - run: npm ci && npm run build
+    
+    - uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_NULLSPACE }}'
+        channelId: live
+        projectId: nullspace

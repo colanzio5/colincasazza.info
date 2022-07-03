@@ -15,6 +15,10 @@ jobs:
           override: true
           components: rustfmt
 
+      - name: Build wasm lib
+      - uses: actions/checkout@v2
+      - run: npm install -g wasm-pack && npm run build:wasm
+
       - uses: actions/checkout@v2
       - run: npm ci && npm run build
 
