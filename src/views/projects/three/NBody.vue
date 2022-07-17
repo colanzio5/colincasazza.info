@@ -5,13 +5,10 @@
 
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
-import {
-  NBodyEntity,
-  type INBodyEntityOptions,
-} from "@/lib/renderer/entitys/nbody.entity";
+import { NBodyEntity } from "@/lib/renderer/entitys/nbody.entity";
+import type { INBodyEntityOptions } from "@/lib/renderer/entitys/nbody.entity";
 import { View } from "@/lib/renderer/view";
 import { randomFromRange, randomIntFromRange } from "@/lib/util/random";
-import themeColors from "@/styles/themeColors";
 import NBodyDatGUI from "@/views/projects/three/NBodyDatGUI.vue";
 import RAPIER, {
   RigidBody,
@@ -20,13 +17,8 @@ import RAPIER, {
   World,
 } from "@dimforge/rapier2d-compat";
 import { toRaw } from "@vue/reactivity";
-import {
-  Color,
-  Scene,
-  Vector2,
-  Vector3,
-  type ColorRepresentation,
-} from "three";
+import { Color, Scene, Vector2, Vector3 } from "three";
+import type { ColorRepresentation } from "three";
 import { Options, Vue } from "vue-class-component";
 
 @Options({

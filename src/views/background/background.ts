@@ -1,6 +1,7 @@
 
 import themeColors from "@/styles/themeColors";
 import type { ColorRepresentation } from "three";
+import { generateUUID } from "three/src/math/MathUtils";
 import type { BirdConfig } from "wasm-lib";
 
 export interface IBirdConfig {
@@ -34,7 +35,7 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     birdColor: themeColors.compliment[500],
   },
   {
-    id: "black_sheep",
+    id: generateUUID(),
     weight: 1,
     neighborDistance: 200,
     desiredSeparation: 50,

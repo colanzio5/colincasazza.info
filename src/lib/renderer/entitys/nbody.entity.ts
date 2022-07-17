@@ -20,7 +20,7 @@ export interface INBodyEntityOptions {
   seed: number;
   origin: Vector3;
   linearVelocity: Vector3;
-  angularVelocity: number,
+  angularVelocity: number;
   color: ColorRepresentation;
 }
 
