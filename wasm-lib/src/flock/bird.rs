@@ -1,5 +1,5 @@
 use kd_tree::{KdPoint, KdTree2};
-use nalgebra::{Matrix2, Vector2};
+use nalgebra::{Vector2};
 use std::f32::consts::PI;
 
 use crate::utils::clamp_magnitude;
@@ -39,17 +39,14 @@ impl Bird {
             self.align(birds_to_follow.to_owned(), bird_config) * bird_config.alignment_multiplier;
         let coh = self.cohesion(birds_to_follow.to_owned(), bird_config)
             * bird_config.cohesion_multiplier;
-
         self.acceleration += sep;
         self.acceleration += ali;
         self.acceleration += coh;
-
         // physics update
         clamp_magnitude(&mut self.acceleration, bird_config.max_force);
         self.velocity += 0.5 * (self.acceleration * (time_step * *time_step));
         clamp_magnitude(&mut self.velocity, bird_config.max_speed);
         self.position += *time_step * self.velocity;
-
         // wrap birds around borders
         self.borders(bird_config, width, height);
     }
@@ -122,7 +119,7 @@ impl Bird {
         if count > 0 {
             target /= count as f32;
             target -= self.position;
-            target = target.normalize();
+            target.normalize_mut();
             target *= bird_config.max_speed;
             target -= self.velocity;
             clamp_magnitude(&mut target, bird_config.max_force);
@@ -132,27 +129,21 @@ impl Bird {
 
     pub fn get_vertices(&self, bird_config: &BirdConfig) -> Vec<Vector2<f32>> {
         let angle = self.velocity.angle(&Vector2::new(0., 1.));
-
-        let rot_matrix = Matrix2::from_columns(&[
-            Vector2::new(angle.cos(), angle.sin()),
-            Vector2::new(-angle.sin(), angle.cos()),
-        ]);
-
-        // let q = bird_config.bird_size / (2. * (PI / 6.).acos());
-        // let r = (PI / 6.).tan() * (bird_config.bird_size / 2.);
-
-        let R = bird_config.bird_size / ((3 as f32).sqrt());    
+        let r = bird_config.bird_size / ((3 as f32).sqrt());    
         let a = Vector2::new(
-            R * angle.cos(), R * angle.sin()
+            r * angle.cos(), r * angle.sin()
         );
         let b = Vector2::new(
-            R * (angle + ((4. * PI)/3.)).cos(),
-            R * (angle + ((4. * PI)/3.)).sin()
+            r * (angle + ((4. * PI)/3.)).cos(),
+            r * (angle + ((4. * PI)/3.)).sin()
         );
         let c = Vector2::new(
-            R * (angle + ((2. * PI)/3.)).cos(),
-            R * (angle + ((2. * PI)/3.)).sin()
+            r * (angle + ((2. * PI)/3.)).cos(),
+            r * (angle + ((2. * PI)/3.)).sin()
         );
+        // pairs of vertices represent line segments
+        // (start vertex and end vertex of line)
+        // e.g. 3 pairs makes a triangle
         [
             a, b,
             b, c,
@@ -160,19 +151,5 @@ impl Bird {
         ]
         .map(|e| e + self.position)
         .to_vec()
-        // pairs of vertices represent lines
-        // [
-        //     Vector2::new(0., q * 2.),
-        //     Vector2::new(-bird_config.bird_size / 2., -r),
-            
-        //     Vector2::new(bird_config.bird_size / 2., r),
-        //     Vector2::new(0., q * 2.),
-
-        //     Vector2::new(-bird_config.bird_size / 2., -r),
-        //     Vector2::new(-bird_config.bird_size / 2., r),
-        // ]
-        // .map(|e| rot_matrix * e)
-        // .map(|e| e + self.position)
-        // .to_vec()
     }
 }

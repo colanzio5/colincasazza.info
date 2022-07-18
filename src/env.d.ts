@@ -4,8 +4,8 @@ import { Emitter, EventType } from "mitt";
 import { DefineComponent } from "vue";
 import { Router, LocationAsPath } from "vue-router";
 
-declare module '*.vue' {
-  import Vue from 'vue';
+declare module "*.vue" {
+  import Vue from "vue";
   export default Vue;
 }
 
@@ -46,4 +46,4 @@ declare module "vue/types/vue" {
   }
 }
 
-declare module 'weighted-array';
+declare module "weighted-array";

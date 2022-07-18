@@ -8,10 +8,6 @@ use crate::utils::log;
 
 use super::{bird::Bird, bird_config::BirdConfig};
 
-// const GLOBAL_MAX_FLOCK_SIZE: usize = 2500;
-// const GLOBAL_VERTICES_PER_BIRD: usize = 4;
-// const GLOBAL_VERTEX_BUFFER_SIZE: usize = GLOBAL_MAX_FLOCK_SIZE * GLOBAL_VERTICES_PER_BIRD * 3;
-
 #[wasm_bindgen]
 pub struct Flock {
     birds: kd_tree::KdTree2<Bird>,

@@ -17,7 +17,9 @@ export default class Footer extends Vue {}
     <div v-if="$route.name === 'HomeView'">
       <span class="text-white">
         like the background? click
-        <router-link to="/projects/three/flock" class="link">here</router-link>.
+        <router-link to="/projects/three/flock" class="link">
+          <span class="rainbow-text-animated">here</span></router-link
+        >.
       </span>
     </div>
     <div v-if="$route.name === 'Projects'">

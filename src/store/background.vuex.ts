@@ -16,7 +16,7 @@ const VuexModule = createModule({
 });
 
 export default class BackgroundStore extends VuexModule {
-  public birdConfigs: IBirdConfig[] = [];
+  public birdConfigs: Set<IBirdConfig> = new Set<IBirdConfig>();
   public isDragging = false;
   public isLoaded = false;
   public updating = false;
@@ -46,9 +46,9 @@ export default class BackgroundStore extends VuexModule {
       throw new Error(
         "[background.vuex] cannot remove config, flock doesn't exist."
       );
-    this.birdConfigs = this.birdConfigs.filter(
-      (config) => config.id !== configIdToRemove
-    );
+    this.birdConfigs.delete({
+      id: configIdToRemove,
+    } as IBirdConfig);
     this._flock.remove_bird_config(configIdToRemove);
   }
 
@@ -58,7 +58,7 @@ export default class BackgroundStore extends VuexModule {
         "[background.vuex] cannot add config, flock doesn't exist."
       );
     const config = await this.generateWASMBirdConfig(birdConfig);
-    this.birdConfigs.push(birdConfig);
+    this.birdConfigs.add(birdConfig);
     this._flock.add_bird_config(birdConfig.id, config);
   }
 
@@ -109,7 +109,7 @@ export default class BackgroundStore extends VuexModule {
     viewHeight: number;
   }): Promise<void> {
     if (!this._flock) return;
-    const config = select(this.birdConfigs);
+    const config = select([...this.birdConfigs]);
     this._flock.add_bird_at_random_position(
       config.id,
       props.viewWidth,
@@ -122,7 +122,7 @@ export default class BackgroundStore extends VuexModule {
     y: number;
   }): Promise<void> {
     if (!this._flock) return;
-    const config = select(this.birdConfigs);
+    const config = select([...this.birdConfigs]);
     this._flock.add_bird(config.id, props.x, props.y);
   }
 
@@ -134,10 +134,9 @@ export default class BackgroundStore extends VuexModule {
         "[background.vuex] cannot update bird config, flock doesn't exist."
       );
     const config = await this.generateWASMBirdConfig(updatedBirdConfig);
-    this.birdConfigs = this.birdConfigs.filter(
-      (birdConfig) => birdConfig.id !== updatedBirdConfig.id
-    );
-    this.birdConfigs.push(updatedBirdConfig);
+    this.birdConfigs.delete({
+      id: updatedBirdConfig.id,
+    } as IBirdConfig);
     this._flock.update_bird_config(updatedBirdConfig.id, config);
   }
 

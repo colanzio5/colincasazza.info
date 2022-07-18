@@ -1,4 +1,3 @@
-
 import themeColors from "@/styles/themeColors";
 import type { ColorRepresentation } from "three";
 import { generateUUID } from "three/src/math/MathUtils";
@@ -20,8 +19,8 @@ export interface IBirdConfig {
 }
 
 export const DEFAULT_BIRD_ID = "default";
-export const backgroundBirdConfigs: IBirdConfig[] = [
-  {
+export const backgroundBirdConfigs: Set<IBirdConfig> = new Set<IBirdConfig>()
+  .add({
     id: DEFAULT_BIRD_ID,
     weight: 80,
     neighborDistance: 200,
@@ -33,8 +32,8 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     maxForce: 0.01,
     birdSize: 6,
     birdColor: themeColors.compliment[500],
-  },
-  {
+  })
+  .add({
     id: generateUUID(),
     weight: 1,
     neighborDistance: 200,
@@ -46,8 +45,7 @@ export const backgroundBirdConfigs: IBirdConfig[] = [
     maxForce: 0.01,
     birdSize: 12,
     birdColor: themeColors.highlight[200],
-  },
-];
+  });
 
 // todo: choose flock size based on screen size
 export const MAX_FLOCK_SIZE = 500;

@@ -1,9 +1,10 @@
-use std::{ops::{MulAssign, Neg, DivAssign}, string};
+use std::{ops::{MulAssign, DivAssign}};
 
-use nalgebra::{clamp, AbstractRotation, Vector2, Vector3};
-use typenum::{private::Invert, False};
+use nalgebra::{Vector2};
+
 use wasm_bindgen::prelude::*;
 
+/**
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
     // `set_panic_hook` function at least once during initialization, and then
@@ -14,6 +15,7 @@ pub fn set_panic_hook() {
     #[cfg(feature = "console_error_panic_hook")]
     console_error_panic_hook::set_once();
 }
+ */
 
 #[wasm_bindgen]
 extern "C" {
@@ -35,7 +37,7 @@ extern "C" {
 
 pub fn clamp_magnitude(vector: &mut Vector2<f32>, max: f32) {
     let length = vector.magnitude();
-    if nearly_equal(length, 0.0, 5.) { return; };
+    if nearly_equal(length, 0.0, 0.5) { return; };
     vector.div_assign(length);
     let scale = length.min(max).max(-max);
     vector.mul_assign(scale);

@@ -52,6 +52,9 @@ export default class BackgroundDebug extends Vue {
     this.gui
       .add({ "+": () => this.generateRandomBirdConfig() }, "+")
       .name("(+) add new bird species");
+
+    this.gui.add({ export: () => this.exportBirdsConfigAsJSON() }, "export");
+
     this.globalsFloder
       .add(vxm.background, "maxFlockSize")
       .min(1)
@@ -87,7 +90,7 @@ export default class BackgroundDebug extends Vue {
 
   async removeBirdConfigFromGui(birdConfigIdToRemove: string) {
     this.gui.__folders[birdConfigIdToRemove].destroy();
-    await vxm.background.removeBirdConfig.bind(birdConfigIdToRemove);
+    await vxm.background.removeBirdConfig(birdConfigIdToRemove);
   }
 
   addBirdConfigToGui(configToAdd: IBirdConfig) {
@@ -134,6 +137,13 @@ export default class BackgroundDebug extends Vue {
         )
         .name("(-) remove species");
     }
+  }
+
+  exportBirdsConfigAsJSON(): void {
+    const data = [...vxm.background.birdConfigs].map((c) => {
+      return Object.fromEntries(Object.entries(c));
+    });
+    console.log(JSON.stringify(data));
   }
 }
 </script>
