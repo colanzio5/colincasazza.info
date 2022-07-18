@@ -1,0 +1,15 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.web.json",
+  "include": ["src/env.d.ts", "wasm-lib/**/*.*", "src/**/*", "src/**/*.vue", "wasm-lib/pkg/**/*.*", "src/styles/theme.cjsors.js"],
+  "exclude": ["src/**/__tests__/*"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "wasm-lib": ["./src/wasm-lib/pkg/*"],
+    },
+    "target": "esnext",
+    "experimentalDecorators": true,
+    "types": ["node"]
+  }
+}

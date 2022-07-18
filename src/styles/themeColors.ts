@@ -1,30 +1,3 @@
-export default {
-  primary: {
-    100: "#990033",
-    200: "#E1004C",
-    300: "#BB003F",
-    400: "#750027",
-    500: "#480018",
-  },
-  highlight: {
-    100: "#AD4A00",
-    200: "#FF6C00",
-    300: "#D35A00",
-    400: "#853800",
-    500: "#522300",
-  },
-  secondary: {
-    100: "#006C60",
-    200: "#009F8E",
-    300: "#008375",
-    400: "#00524A",
-    500: "#00332E",
-  },
-  compliment: {
-    100: "#4C9C00",
-    200: "#70E500",
-    300: "#5DBE00",
-    400: "#3A7700",
-    500: "#244A00",
-  },
-};
+import * as ThemeColorsModule from "@/styles/theme.cjs";
+
+export default ThemeColorsModule.default;

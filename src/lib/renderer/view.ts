@@ -23,7 +23,7 @@ export interface IViewData extends Object {}
 
 export interface IViewOptions {
   id: string;
-  renderTickCallback: (view: View) => void;
+  renderTickCallback: (view: View, timeStepMS: number) => void;
   background?: Color;
   scene?: Scene;
   cameraOptions?: ICameraOptions;
@@ -39,7 +39,7 @@ export class View {
   camera!: PerspectiveCamera;
   controls!: OrbitControls;
 
-  renderTickCallback(view: View): void {
+  renderTickCallback(view: View, timeStepMS: number): void {
     throw new Error('not implemented.')
   }
 
@@ -58,7 +58,7 @@ export class View {
     // vertical fov in radians
     const vFOV = (this.camera.fov * Math.PI) / 180;
     // Math.abs to ensure the result is always positive
-    return 2 * Math.tan(vFOV / 2) * Math.abs(depth);
+    return 2 * Math.tan(vFOV / 2.0) * Math.abs(depth);
   }
 
   get visibleWidthAtZDepth(): number {

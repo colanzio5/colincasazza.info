@@ -4,35 +4,34 @@
 
 <script lang="ts">
 import ViewPortComponent from "@/components/renderer/ViewPortComponent.vue";
-import useEmitter from "@/emitter";
-import { Bird, BirdConfig } from "@/lib/flock/bird";
-import { Flock, IFlockConfig } from "@/lib/flock/flock";
 import { View } from "@/lib/renderer/view";
-import {
-  randomFromRange,
-  selectRandomFromWeightedArray,
-} from "@/lib/util/random";
+import { vxm } from "@/store";
 import { throttle } from "lodash";
-import { Color, Vector2, Vector3 } from "three";
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Color,
+  LineBasicMaterial,
+  LineSegments,
+  Vector3,
+} from "three";
 import { lerp } from "three/src/math/MathUtils";
 import { Options, Vue } from "vue-class-component";
-import { backgroundFlock } from "./background";
 
 @Options({
   components: {
     ViewPortComponent: ViewPortComponent,
   },
 })
-export default class Background extends Vue {
-  drag = false;
+export default class FlockBackground extends Vue {
+  addBirdsToFlockInterval!: NodeJS.Timer | number;
+  // variables for rendering flock
   view!: View;
-  flock!: Flock;
-  emitter = useEmitter();
-  updating: boolean = false;
+  birdsGeometry: any;
+  birdsMaterial: any;
+  birdsLine: any;
 
   created() {
-    console.log("created");
-    this.flock = backgroundFlock;
     this.view = new View({
       cameraOptions: {
         fov: 75,
@@ -48,94 +47,102 @@ export default class Background extends Vue {
       background: new Color("black"),
       renderTickCallback: this.renderTickCallback,
     });
+    this.birdsGeometry = new BufferGeometry();
+    this.birdsMaterial = new LineBasicMaterial({
+      vertexColors: true,
+    });
+    this.birdsLine = new LineSegments(this.birdsGeometry, this.birdsMaterial);
+    this.view.scene.add(this.birdsLine);
   }
 
-  mounted(): void {
-    console.log("mounted");
-
-    this.flock.resize(
-      this.view.visibleWidthAtZDepth,
-      this.view.visibleHeightAtZDepth
+  async mounted() {
+    await vxm.background.initFlock();
+    window.addEventListener("touchstart", throttle(this.touchDrag, 10), false);
+    window.addEventListener("touchmove", throttle(this.touchDrag, 10), false);
+    window.addEventListener(
+      "mousedown",
+      () => (vxm.background.isDragging = true),
+      false
     );
-    const halfWidth = this.flock.width / 2;
-    const halfHeight = this.flock.height / 2;
-    for (let i = 0; i < this.flock.flockConfig.maxFlockSize; i++) {
-      const position = new Vector2(
-        randomFromRange(-halfWidth, halfWidth),
-        randomFromRange(-halfHeight, halfHeight)
-      );
-      this.addBirdToFlock({ position });
-    }
-    this.emitter.on("apply-flock-config", this.applyFlockConfig);
-    window.addEventListener("mousedown", () => (this.drag = true));
-    window.addEventListener("mousemove", throttle(this.onMouseMove, 10));
-    window.addEventListener("mouseup", () => (this.drag = false));
+    window.addEventListener("mousemove", throttle(this.mouseDrag, 10), false);
+    window.addEventListener(
+      "mouseup",
+      () => (vxm.background.isDragging = false),
+      false
+    );
+    // add all the birds, but throttle it
+    this.addBirdsToFlockInterval = window.setInterval(async () => {
+      if (vxm.background.currentFlockSize >= vxm.background.maxFlockSize)
+        clearInterval(this.addBirdsToFlockInterval as NodeJS.Timer);
+      vxm.background.addBirdAtRandomPosition({
+        viewWidth: this.view.visibleWidthAtZDepth,
+        viewHeight: this.view.visibleHeightAtZDepth,
+      });
+    }, 25);
   }
 
   unmounted() {
-    window.removeEventListener("mousedown", () => (this.drag = true));
-    window.removeEventListener("mousemove", throttle(this.onMouseMove, 10));
-    window.removeEventListener("mouseup", () => (this.drag = false));
-  }
-
-  renderTickCallback(view: View) {
-    this.flock.resize(view.visibleWidthAtZDepth, view.visibleHeightAtZDepth);
-    this.flock.birds.forEach((bird) => bird.run(this.flock.birds));
-  }
-
-  // applies the new
-  applyFlockConfig(flockConfig: IFlockConfig): void {
-    this.updating = true;
-    const currentBirds = this.flock.birds;
-    currentBirds.forEach(this.removeBirdFromView);
-    this.flock.birds = [];
-    currentBirds.forEach((bird) => {
-      const birdConfig = flockConfig.birdConfigs.find(
-        (c: BirdConfig) => c.id === bird.birdConfig.id
-      );
-      if (birdConfig) this.addBirdToFlock({ ...{ ...bird, birdConfig } });
-    });
-    this.flock.flockConfig = flockConfig;
-    this.updating = false;
-  }
-
-  addBirdToFlock(params: {
-    position?: Vector2;
-    velocity?: Vector2;
-    acceleration?: Vector2;
-    birdConfig?: BirdConfig;
-  }): Bird {
-    const config =
-      params?.birdConfig ||
-      selectRandomFromWeightedArray<BirdConfig>(
-        this.flock.flockConfig.birdConfigs
-      );
-    const birdAdded = new Bird(this.flock, config, params);
-    if (this.flock.birds.length >= this.flock.flockConfig.maxFlockSize) {
-      const birdRemoved = this.flock.birds.shift();
-      if (birdRemoved) this.removeBirdFromView(birdRemoved);
-    }
-    this.flock.birds = this.flock.birds.concat(birdAdded);
-    this.view.scene.add(birdAdded.line);
-    return birdAdded;
-  }
-
-  removeBirdFromView(bird: Bird) {
-    this.view.removeEntities(bird.line);
-    bird.dispose();
-  }
-
-  onMouseMove(event: MouseEvent): void {
-    if (!this.drag || this.updating) return;
-    const halfWidth = this.flock.width / 2;
-    const halfHeight = this.flock.height / 2;
-    const normClickX = event.x / this.view.viewPort.width;
-    const normClickY = event.y / this.view.viewPort.height;
-    const position = new Vector2(
-      lerp(-halfWidth, halfWidth, normClickX),
-      lerp(-halfHeight, halfHeight, normClickY) * -1
+    /** remove all the random event listeners weve added */
+    window.addEventListener("touchstart", throttle(this.touchDrag, 10), false);
+    window.addEventListener("touchmove", throttle(this.touchDrag, 10), false);
+    window.addEventListener(
+      "mousedown",
+      () => (vxm.background.isDragging = true),
+      false
     );
-    this.addBirdToFlock({ position });
+    window.addEventListener("mousemove", throttle(this.mouseDrag, 10), false);
+    window.addEventListener(
+      "mouseup",
+      () => (vxm.background.isDragging = false),
+      false
+    );
+    clearInterval(this.addBirdsToFlockInterval as NodeJS.Timer);
+    /** make sure we clean up the wasm resources
+    can we write this into the flock free function */
+    // for (const config of vxm.background.birdConfigs) config.free();
+    vxm.background.unmounted();
+  }
+
+  updateFlockGeometry(vertices: Float32Array, colors: Float32Array) {
+    this.birdsLine.geometry.setAttribute(
+      "position",
+      new BufferAttribute(vertices, 3)
+    );
+    this.birdsLine.geometry.setAttribute(
+      "color",
+      new BufferAttribute(colors, 3)
+    );
+  }
+
+  renderTickCallback(_: View) {
+    if (!vxm.background.isLoaded) return;
+    vxm.background.updateFlock({
+      sceneWidth: this.view.visibleWidthAtZDepth,
+      sceneHeight: this.view.visibleHeightAtZDepth,
+      timeStep: 1,
+      updateFlockGeometryCallback: this.updateFlockGeometry,
+    });
+  }
+
+  touchDrag(event: TouchEvent) {
+    const touch = event.touches.item(event.touches.length - 1);
+    if (!touch) return;
+    this.addBirdFromEvent(touch.clientX, touch.clientY);
+  }
+
+  mouseDrag(event: MouseEvent) {
+    if (!vxm.background.isDragging || vxm.background.updating) return;
+    this.addBirdFromEvent(event.x, event.y);
+  }
+
+  addBirdFromEvent(eventX: number, eventY: number) {
+    const normClickX = eventX / this.view.viewPort.width;
+    const normClickY = eventY / this.view.viewPort.height;
+    const halfSceneWidth = this.view.visibleWidthAtZDepth / 2;
+    const halfSceneHeight = this.view.visibleHeightAtZDepth / 2;
+    const x = lerp(-halfSceneWidth, halfSceneWidth, normClickX);
+    const y = -lerp(-halfSceneHeight, halfSceneHeight, normClickY);
+    vxm.background.addBrdAtPosition({ x, y });
   }
 }
 </script>

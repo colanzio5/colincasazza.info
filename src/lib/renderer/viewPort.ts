@@ -13,7 +13,7 @@ function getVerticalFOV(aspect: number, horizontalFov: number): number {
   );
 }
 
-export class ViewPort {
+export abstract class AbstractViewPort {
   container!: HTMLElement | HTMLCanvasElement;
   height = 0;
   width = 0;
@@ -36,6 +36,13 @@ export class ViewPort {
     this.isMounted = true;
   }
 
+  abstract resize(): void 
+
+  abstract destroy(): void
+}
+
+export class ViewPort extends AbstractViewPort {
+
   getOffset(ele: HTMLElement | HTMLCanvasElement) {
     // Get the top, left coordinates of two elements
     const eleRect = ele.getBoundingClientRect();
@@ -52,12 +59,24 @@ export class ViewPort {
   resize(): void {
     const { left, bottom } = this.getOffset(this.container);
     const { width, height } = this.container.getBoundingClientRect();
-    // this.height = this.container.clientHeight;
     this.height = height;
-    // this.width = this.container.clientWidth;
     this.width = width;
     this.left = left;
     this.bottom = bottom;
+  }
+
+  destroy(): void {
+    throw new Error("not implemented");
+  }
+}
+
+export class RendererRootViewPort extends AbstractViewPort {
+
+  resize(): void {
+    this.height = this.container.clientHeight;
+    this.width = this.container.clientWidth;
+    this.left = 0;
+    this.bottom = 0;
   }
 
   destroy(): void {

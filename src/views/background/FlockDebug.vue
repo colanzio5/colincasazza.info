@@ -4,135 +4,146 @@
 
 <script lang="ts">
 import useEmitter from "@/emitter";
-import { BirdConfig } from "@/lib/flock/bird";
-import { IFlockConfig } from "@/lib/flock/flock";
-import { randomColor } from "@/lib/util/random";
-import themeColors from "@/styles/themeColors";
+import { truncate } from "@/lib/util/numbers";
+import {
+  generateRandomColor,
+  randomFromRange,
+  randomIntFromRange,
+} from "@/lib/util/random";
+import { vxm } from "@/store";
 import { GUI } from "dat.gui";
-import { cloneDeep } from "lodash";
+import { generateUUID } from "three/src/math/MathUtils";
 import { Vue } from "vue-class-component";
-import { backgroundFlock } from "./background";
+import type { IBirdConfig } from "./background";
+import { DEFAULT_BIRD_ID } from "./background";
 
 export default class BackgroundDebug extends Vue {
-  gui!: GUI;
-  flockConfig!: IFlockConfig;
+  gui: GUI = new GUI({ autoPlace: false, closeOnTop: true });
   emitter = useEmitter();
 
   get container(): HTMLElement {
     return this.$refs["gui-container"] as HTMLElement;
   }
 
-  mounted() {
-    this.flockConfig = cloneDeep({ ...backgroundFlock.flockConfig });
-    this.initGui();
+  get birdsFolder(): GUI {
+    return this.gui.__folders["birds"];
+  }
+
+  get globalsFloder(): GUI {
+    return this.gui.__folders["globals"];
+  }
+
+  async mounted() {
+    await vxm.background.$subscribeAction("initFlock", {
+      before: () => null,
+      after: () => null,
+    });
+    this.container.appendChild(this.gui.domElement);
+    this.gui.domElement.id = "gui";
+    this.gui.domElement.style.overflowY = "scroll";
+    this.gui.domElement.style.position = "fixed";
+    this.gui.domElement.style.maxHeight = "40%";
+    this.gui.domElement.style.maxWidth = "60%";
+    this.gui.domElement.style.left = "0px";
+    this.gui.domElement.style.bottom = "0px";
+    this.gui.domElement.style.zIndex = "9999";
+    this.gui.addFolder("globals");
+    this.gui.addFolder("birds");
+    this.gui
+      .add({ "+": () => this.generateRandomBirdConfig() }, "+")
+      .name("(+) add new bird species");
+
+    this.gui.add({ export: () => this.exportBirdsConfigAsJSON() }, "export");
+
+    this.globalsFloder
+      .add(vxm.background, "maxFlockSize")
+      .min(1)
+      .max(2000)
+      .name("max flock size");
+    this.globalsFloder.open();
+    await vxm.background.birdConfigs.forEach(this.addBirdConfigToGui);
   }
 
   unmounted() {
-    this.destroyGUI();
-  }
-
-  destroyGUI() {
+    this.gui?.destroy();
     while (this.container?.lastChild)
       this.container.removeChild(this.container.lastChild);
   }
 
-  async initGui() {
-    this.gui = new GUI({ autoPlace: false, closeOnTop: true });
-    this.container.appendChild(this.gui.domElement);
-    this.gui.domElement.id = "gui";
-    this.gui.domElement.style.overflowY = "scroll";
-    this.gui.domElement.style.position = "absolute";
-    this.gui.domElement.style.maxHeight = "40%";
-    this.gui.domElement.style.left = "0px";
-    this.gui.domElement.style.bottom = "0px";
-    this.gui.domElement.style.zIndex = "9999";
-    const globals = this.gui.addFolder("globals");
-    globals
-      .add(this.flockConfig, "maxFlockSize", 0)
-      .onFinishChange(this.applyChanges);
-    globals.open();
-    const birdTypes = this.gui.addFolder("birds");
-    this.flockConfig.birdConfigs
-      .sort((a: BirdConfig, b: BirdConfig) => a.probability - b.probability)
-      .forEach((config: BirdConfig) => {
-        const birdFolder = birdTypes.addFolder(
-          config.probability === -1 ? config.id + " (default)" : config.id
-        );
-        if (config.probability !== -1) {
-          birdFolder
-            .add(config, "probability")
-            .step(0.01)
-            .min(0)
-            .max(1)
-            .onFinishChange(this.applyChanges).domElement.title =
-            "**note** bird order determines spawn type when sum all probabilities > 1";
-        }
-        birdFolder
-          .addColor(config, "color")
-          .setValue(config.color)
-          .onFinishChange(this.applyChanges);
-        const dist = birdFolder
-          .add(config, "neighborDistance")
-          .min(0)
-          .max(config.desiredSeparation)
-          .onFinishChange(this.applyChanges);
-        dist.domElement.title =
-          "**note** neighbor distance must < desired separation";
-        birdFolder.add(config, "desiredSeparation").onFinishChange(() => {
-          this.applyChanges();
-          dist.max(config.desiredSeparation);
+  async generateRandomBirdConfig() {
+    const randomConfig: IBirdConfig = {
+      id: generateUUID(),
+      weight: randomIntFromRange(0, 300),
+      neighborDistance: randomIntFromRange(0, 50),
+      desiredSeparation: randomIntFromRange(50, 250),
+      separationMultiplier: randomFromRange(0.001, 1),
+      alignmentMultiplier: randomFromRange(0.001, 1),
+      cohesionMultiplier: randomFromRange(0.001, 1),
+      maxForce: randomFromRange(0.0001, 1),
+      maxSpeed: randomFromRange(0.001, 3),
+      birdColor: "#" + generateRandomColor().getHexString(),
+      birdSize: randomFromRange(3, 7),
+    };
+    this.addBirdConfigToGui(randomConfig);
+    await vxm.background.addBirdConfig(randomConfig);
+  }
+
+  async removeBirdConfigFromGui(birdConfigIdToRemove: string) {
+    this.gui.__folders[birdConfigIdToRemove].destroy();
+    await vxm.background.removeBirdConfig(birdConfigIdToRemove);
+  }
+
+  addBirdConfigToGui(configToAdd: IBirdConfig) {
+    const birdFolder = this.birdsFolder.addFolder(configToAdd.id);
+    birdFolder.name = truncate(configToAdd.id, 25);
+    birdFolder
+      .addColor(configToAdd, "birdColor")
+      .setValue(configToAdd.birdColor)
+      .onFinishChange(async (updatedColor) => {
+        await vxm.background.updateBirdConfig({
+          ...configToAdd,
+          birdColor: updatedColor,
         });
-
-        birdFolder
-          .add(config, "separationMultiplier")
-          .onFinishChange(this.applyChanges);
-        birdFolder
-          .add(config, "alignmentMultiplier")
-          .onFinishChange(this.applyChanges);
-        birdFolder
-          .add(config, "cohesionMultiplier")
-          .onFinishChange(this.applyChanges);
-        birdFolder.add(config, "maxSpeed").onFinishChange(this.applyChanges);
-        birdFolder.add(config, "maxForce").onFinishChange(this.applyChanges);
-        birdFolder.add(config, "birdSize").onFinishChange(this.applyChanges);
-        if (config.probability !== -1) {
-          birdFolder
-            .add({ "-": this.removeBird.bind(this, config) }, "-")
-            .onFinishChange(this.applyChanges);
-        }
+      }).domElement.inputMode = "none"; // disable keyboard inputs
+    // attributes w/o options
+    [
+      "weight",
+      "neighborDistance",
+      "desiredSeparation",
+      "separationMultiplier",
+      "alignmentMultiplier",
+      "cohesionMultiplier",
+      "maxSpeed",
+      "maxForce",
+      "birdSize",
+    ].forEach((attr) => {
+      birdFolder.add(configToAdd, attr).onFinishChange(async (updatedValue) => {
+        await vxm.background.updateBirdConfig({
+          ...configToAdd,
+          [attr]: updatedValue,
+        });
       });
-    birdTypes.add({ "+": this.addBirdType }, "+");
-    // birdTypes.add({ applyChanges: this.applyChanges }, "applyChanges");
-    birdTypes.open();
+    });
+
+    this.birdsFolder.open();
+    if (configToAdd.id !== DEFAULT_BIRD_ID) {
+      birdFolder
+        .add(
+          {
+            "-": (configToAdd: IBirdConfig) =>
+              this.removeBirdConfigFromGui(configToAdd.id),
+          },
+          "-"
+        )
+        .name("(-) remove species");
+    }
   }
 
-  addBirdType() {
-    this.flockConfig.birdConfigs.push(
-      new BirdConfig({
-        neighborDistance: 25,
-        desiredSeparation: 30,
-        separationMultiplier: 0.4,
-        alignmentMultiplier: 0.3,
-        cohesionMultiplier: 0.3,
-        maxSpeed: 2,
-        maxForce: 0.05,
-        birdSize: 5,
-        color: themeColors.primary["100"],
-        probability: 0.0,
-      })
-    );
-    this.initGui();
-  }
-
-  removeBird(config: BirdConfig) {
-    this.flockConfig.birdConfigs = this.flockConfig.birdConfigs.filter(
-      (c: BirdConfig) => c.id !== config.id
-    );
-    this.initGui();
-  }
-
-  applyChanges() {
-    this.emitter.emit("apply-flock-config", cloneDeep(this.flockConfig));
+  exportBirdsConfigAsJSON(): void {
+    const data = [...vxm.background.birdConfigs].map((c) => {
+      return Object.fromEntries(Object.entries(c));
+    });
+    console.log(JSON.stringify(data));
   }
 }
 </script>

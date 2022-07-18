@@ -8,11 +8,11 @@ export function randomIntFromRange(min: number, max: number) {
   return Math.round(randomFromRange(min, max));
 }
 
-export function randomColor() {
-  const r = randomIntFromRange(0, 255);
-  const g = randomIntFromRange(0, 255);
-  const b = randomIntFromRange(0, 255);
-  return new Color(`rgb(${r},${g},${b})`);
+export function generateRandomColor() {
+  const r = randomFromRange(0, 255);
+  const g = randomFromRange(0, 255);
+  const b = randomFromRange(0, 255);
+  return new Color(r,g,b);
 }
 
 export interface IWeightedArray<T extends { probability: number }>

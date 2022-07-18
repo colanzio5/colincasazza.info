@@ -6,8 +6,8 @@ import {
   LineLoop,
   LineBasicMaterial,
   Vector2,
-  ColorRepresentation,
   Vector3,
+  type ColorRepresentation,
 } from "three";
 import { TracePathEntity } from "./tracePath.entity";
 
@@ -20,7 +20,7 @@ export interface INBodyEntityOptions {
   seed: number;
   origin: Vector3;
   linearVelocity: Vector3;
-  angularVelocity: number,
+  angularVelocity: number;
   color: ColorRepresentation;
 }
 
@@ -71,9 +71,7 @@ export class NBodyEntity {
   }
 
   setVertices(vertices: Vector3[]): void {
-    const positions = new Float32Array(
-      vertices.map((e) => e.toArray()).flat()
-    );
+    const positions = new Float32Array(vertices.map((e) => e.toArray()).flat());
     const colors = new Float32Array(
       new Array(vertices.length).fill(this.material.color.toArray()).flat()
     );
