@@ -26,8 +26,10 @@ export default class Footer extends Vue {}
       <span class="text-white">
         source code to projects can be found at
         <a class="link" href="https://github.com/colanzio5/colincasazza.info"
-          >https://github.com/colanzio5/colincasazza.info</a
-        >
+          ><span class="rainbow-text-animated">
+            https://github.com/colanzio5/colincasazza.info
+          </span>
+        </a>
       </span>
     </div>
   </span>
